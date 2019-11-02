@@ -1,0 +1,58 @@
+<Ui>
+	<Script file="localization.lua" />
+	<Script file="Hemlock.lua" />
+	
+	<Button name="HemlockPoisonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="32" y="32" />
+		</Size>
+		<ButtonText name="$parentText" justifyH="RIGHT" inherits="NumberFontNormal" text="?">
+			<Anchors>
+				<Anchor point="BOTTOMRIGHT">
+					<Offset>
+						<AbsDimension x="-1" y="1"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</ButtonText>
+		<HighlightTexture inherits="DialogButtonHighlightTexture" />
+		<Scripts>
+			<OnEnter>
+				GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
+				GameTooltip:SetText(this.tooltipText);
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</Button>
+	
+	<Frame name="HemlockFrame" parent="MerchantFrame" hidden="true">
+		<Size>
+			<AbsDimension x="40" y="40" />
+		</Size>
+		<Anchors>
+			<Anchor point="TOP" relativePoint="TOP" relativeTo="MerchantItem1ItemButton">
+				<Offset>
+					<AbsDimension x="0" y="5" />
+				</Offset>
+			</Anchor>
+			<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="MerchantFrameCloseButton">
+				<Offset>
+					<AbsDimension x="-5" y="0" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Backdrop bgFile="Interface\Tooltips\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="4" right="4" top="4" bottom="4"/>
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="16"/>
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="16"/>
+			</EdgeSize>
+		</Backdrop>
+	</Frame>
+</Ui>

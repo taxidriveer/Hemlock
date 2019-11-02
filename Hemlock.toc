@@ -1,0 +1,20 @@
+## Interface: 20400
+## Version: 2.0
+## Title: Hemlock
+## Notes: Minimalistic addon to automate poison buying and creation
+## Notes-zhCN: 自动购买及制毒的极简插件
+## Notes-zhTW: 自動購買及製毒的極簡插件
+## Author: Antiarc
+## OptionalDeps: Ace2, DewdropLib
+## SavedVariables: HemlockDB
+## SavedVariablesPerCharacter: HemlockDBPC
+## X-Category: Rogue
+
+Libs\AceLibrary\AceLibrary.lua
+Libs\AceOO-2.0\AceOO-2.0.lua
+Libs\AceConsole-2.0\AceConsole-2.0.lua
+Libs\AceEvent-2.0\AceEvent-2.0.lua
+Libs\AceAddon-2.0\AceAddon-2.0.lua
+Libs\AceDB-2.0\AceDB-2.0.lua
+Libs\Dewdrop-2.0\Dewdrop-2.0.lua
+Hemlock.xml
