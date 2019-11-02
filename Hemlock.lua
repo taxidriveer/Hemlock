@@ -522,24 +522,26 @@ function Hemlock:BuyVendorItem(pName, count, countTo)
 				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, invTexture = GetItemInfo(GetMerchantItemLink(i))
 				if name == pName then
 					local ct = 0
-					if count == nil and countTo ~= nil and GetMerchantItemLink(i) ~= nil then
+					if count == nil and countTo ~= nil and GetMerchantItemLink(i) ~= nil then 
 						local pCt = GetItemCount(GetMerchantItemLink(i))
 						ct = pCt - countTo
 					elseif count then
-						ct = math.ceil(count / qty)
+						ct = count
 					end
-					local ct_h = ct
+					-- Hemlock:Print("|cff7777ffPlanned:",ct.."x"..itemLink);
 					while ct > 0 do
-						local ctam = 0
-						if ct > math.floor(itemStackCount / qty) then
-							ctam = math.floor(itemStackCount / qty)
+						if (ct > itemStackCount) then
+							ctam = itemStackCount
+							-- Hemlock:Print("|cffff7777Buying stack:",ctam.."x".. itemName)
 						else
 							ctam = ct
+							-- Hemlock:Print("|cff77ff77Last items:",ctam.."x".. itemName)
 						end
 						ct = ct - ctam
+						-- Hemlock:Print("Need to buy:",ct.."x".. itemName);
 						BuyMerchantItem(i, ctam)
 					end
-					return ct_h
+					return ct
 				end
 			end
 		end
@@ -573,6 +575,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 					frame:GetNormalTexture():SetDesaturated(true)
 					-- self:ScheduleEvent(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
 					self:ScheduleTimer(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
+					-- Hemlock:Print("reagentName:",reagentName, "tobuy:", toBuy, "line 576");
 					local buyResult = self:BuyVendorItem(reagentName, toBuy)
 					if not buyResult then
 						Hemlock:Print(self:L("unableToBuy", toBuy, reagentName))
