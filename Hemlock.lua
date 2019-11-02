@@ -38,8 +38,9 @@ local reagentIDs = {5140}
 --[[*** End Configuration ***]]--
 
 Hemlock = LibStub("AceAddon-3.0"):NewAddon("Hemlock", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
+LDMenu = LibStub("LibDropdown-1.0")
 
--- local dewdrop = LibStub("AceAddon-3.0"):NewAddon("LibDropdown-1.0")
+-- local LibDropdown = LibStub("AceAddon-3.0"):NewAddon("LibDropdown-1.0")
 -- local dewdrop = LibStub("LibDropdown-1.0"):OpenAce3Menu(Ace3ConfigTable)
 
 -- if not AceLibrary("Dewdrop-2.0") then error("Hemlock requires Dewdrop-2.0") end
@@ -98,7 +99,7 @@ function Hemlock:Register()
 					get = function()
 						return self.db.profile.dontUse[k]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.dontUse[k] = v2
 						self:InitFrames()
 					end
@@ -136,7 +137,7 @@ function Hemlock:Register()
 					get = function()
 						return self.db.profile.dontUse[k]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.dontUse[k] = v2
 						self:InitFrames()
 					end
@@ -146,7 +147,7 @@ function Hemlock:Register()
 					name = self:L("autobuy", k),
 					desc = self:L("autobuy_desc", itemName, k),
 					get = function() return self.db.profile.autoBuy[k] end,
-					set	= function(v) self.db.profile.autoBuy[k] = v end
+					set	= function(_,v) self.db.profile.autoBuy[k] = v end
 				}
 			}						
 		}
@@ -246,10 +247,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	-- f:SetFrameStrata("TOOLTIP") -- not working, it look like the frame is anchored to the tradeskill window
 	f:Show()
 	f.tooltipText = itemName
-	-- GameTooltip:SetText(itemName);
 	-- f.tooltipText = self:L("clicktobuy") .. "\n" .. self:L("clicktoset",itemName)
 	
-	-- local menu = {}
+	local menu = {}
 	if frameType == 1 then
 		menu = {
 			type = "group",
@@ -266,12 +266,10 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					get = function()
 						return self.db.profile.poisonRequirements[itemName]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.poisonRequirements[itemName] = v2
-						-- dewdrop:GetOpenedParent():SetText(
-								-- Hemlock:GetPoisonsInInventory(itemName) .. "\n" .. Hemlock.db.profile.poisonRequirements[itemName]
-						-- )
-					end
+						self:InitFrames()
+					end,
 				},
 				exclude = {
 					type = "toggle",
@@ -280,7 +278,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					get = function()
 						return self.db.profile.dontUse[itemName]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.dontUse[itemName] = v2
 						self:InitFrames()
 					end
@@ -289,24 +287,32 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		}
 
 		f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. "|cff00C621" .. self:GetPoisonsInInventory(itemName))
+		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
-				GameTooltip:Hide(); -- workaround ?
-				GameTooltip:Show();
+				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
+				LDMenu:Release();
+				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT",3, 0);
 				GameTooltip:SetText(f.tooltipText);
 				GameTooltip:AddLine (self:L("clicktobuy"), 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktoset"), 1, 1, 1);
 		end)
-		f:SetScript("OnClick", function()
-			-- Hemlock:CreateMenu() -- call the menu
-			if TradeSkillFrame and TradeSkillFrame:IsVisible() then
-				Hemlock:GetNeededPoisons(itemName, f)
-			else
-				CastSpellByName(self.poisonSpellName)
-				C_Timer.After(0.1, function() 
-					Hemlock:GetNeededPoisons(itemName, f) 
-				end)				
+		f:SetScript("OnClick", function(self, button)
+			if (button == "LeftButton") then
+				if TradeSkillFrame and TradeSkillFrame:IsVisible() then
+					Hemlock:GetNeededPoisons(itemName, f)
+				else
+					CastSpellByName(Hemlock.poisonSpellName)
+					C_Timer.After(0.1, function() 
+						Hemlock:GetNeededPoisons(itemName, f) 
+					end)
+				end
+			end
+			if (button == "RightButton") then
+				GameTooltip:Hide();
+				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
+				LDMenu:SetPoint("TOPLEFT", "HemlockPoisonButton" .. itemID, "TOPRIGHT", 3, 1);
 			end
 		end)
 	else
@@ -325,11 +331,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					get = function()
 						return self.db.profile.reagentRequirements[itemName]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.reagentRequirements[itemName] = v2
-						-- dewdrop:GetOpenedParent():SetText(
-								-- GetItemCount(itemName) .. "\n" .. Hemlock.db.profile.reagentRequirements[itemName]
-						-- )
+						self:InitFrames()
 					end
 				},
 				autobuy = {
@@ -337,7 +341,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					name = self:L("autobuy"),
 					desc = self:L("autobuy_desc", itemName),
 					get  = function() return self.db.profile.autoBuy[itemName] end,
-					set	= function(v) self.db.profile.autoBuy[itemName] = v end
+					set	= function(_,v) self.db.profile.autoBuy[itemName] = v end
 				},
 				exclude = {
 					type = "toggle",
@@ -346,7 +350,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					get = function()
 						return self.db.profile.dontUse[itemName]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.dontUse[itemName] = v2
 						self:InitFrames()
 					end
@@ -355,21 +359,30 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		}
 
 		f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. "|cff00C621" .. GetItemCount(itemName))
+		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
-				GameTooltip:Hide(); -- workaround ?
+				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
+				LDMenu:Release();
+				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT", 3, 0);
 				GameTooltip:SetText(f.tooltipText);
 				GameTooltip:AddLine (self:L("clicktobuy"), 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktoset"), 1, 1, 1);
-				GameTooltip:Show();
 		end)
-		f:SetScript("OnClick", function()
-			local toBuy = self.db.profile.reagentRequirements[itemName] - GetItemCount(itemName)
-			if toBuy > 0 then
-				Hemlock:BuyVendorItem(itemName, toBuy)
-			else
-				Hemlock:Print(self:L("skippingReagent", itemName, self.db.profile.reagentRequirements[itemName], GetItemCount(itemName)))
+		f:SetScript("OnClick", function(self, button)
+			if (button == "LeftButton") then
+				local toBuy = Hemlock.db.profile.reagentRequirements[itemName] - GetItemCount(itemName)
+				if toBuy > 0 then
+					Hemlock:BuyVendorItem(itemName, toBuy)
+				else
+					Hemlock:Print(Hemlock:L("skippingReagent", itemName, Hemlock.db.profile.reagentRequirements[itemName], GetItemCount(itemName)))
+				end
+			end
+			if (button == "RightButton") then
+				GameTooltip:Hide();
+				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
+				LDMenu:SetPoint("TOPLEFT", "HemlockPoisonButton" .. itemID, "TOPRIGHT", 3, 1);
 			end
 		end)
 	end
@@ -608,8 +621,8 @@ function Hemlock:GetNeededPoisons(name, frame)
 			for i = 1, GetTradeSkillNumReagents(skillIndex) do
 				local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(skillIndex, i)
 			end
-			DoTradeSkill(skillIndex, toMake)
-			self.claimedReagents[skillIndex] = nil
+				DoTradeSkill(skillIndex, toMake)
+				self.claimedReagents[skillIndex] = nil
 		else
 			Hemlock:Print(self:L("skipping", name, amt, count))
 		end
@@ -695,54 +708,3 @@ StaticPopupDialogs["HEMLOCK_NOTIFY_NEED_SCAN"] = {
 	hideOnEscape = 1,
 	OnAccept = function() Hemlock:ScanPoisons(1) end
 };
-
-
-local LibDropdown = LibStub:GetLibrary("LibDropdown-1.0")
-
--- ???
-local Ace3ConfigTable = {
-   type = "group",
-   handler = BulkMail,
-   set = _editCallbackMethod,
-   get = function() return nil end,
-   args = {
-      inline = {
-	 type = "header",
-	 name = L["Add rule"],
-	 inline = true,
-	 order = 0,
-      },
-      itemIDs = {
-	 type = "input",
-	 name = L["ItemID(s)"],
-	 desc = L["Usage: <itemID> [itemID2, ...]"]
-      }
-   }
-}
-
-   -- create the menu   
-menuFrame = LibDropdown:OpenAce3Menu(Ace3ConfigTable)
-
-   -- Anchor the menu to the mouse
-function Hemlock:CreateMenu()
-local xpos, ypos = GetCursorPosition()
-Hemlock:Print(xpos, ypos);
-local scale = UIParent:GetEffectiveScale()
-menuFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", xpos / scale, ypos / scale)
--- menuFrame:SetFrameLevel(HemlockPoisonButton:GetFrameLevel()+100)
-end
-
-
--- local Menu = LibStub("LibDropdown-1.0"):NewButton(UIParent, 'Hemlock')
--- Menu:SetPoint('CENTER', 0, -50)
--- Menu:SetJustifyH('LEFT')
--- Menu:SetStyle('MENU') -- can be omitted, defaults to 'DEFAULT'
--- Menu:SetText('My Dropdown')
-
--- Menu:Add({
-    -- checked = true,
-    -- text = 'Line 1',
-    -- args = {'value1', 'value2'}
-    -- func = function() (print('click')) end
--- })
-
