@@ -288,7 +288,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			}
 		}
 
-		f:SetText(self:GetPoisonsInInventory(itemName) .. "\n" .. self.db.profile.poisonRequirements[itemName])
+		f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. "|cff00C621" .. self:GetPoisonsInInventory(itemName))
 		f:SetScript("OnEnter", function()
 				GameTooltip:Hide(); -- workaround ?
 				GameTooltip:Show();
@@ -354,7 +354,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			}
 		}
 
-		f:SetText(GetItemCount(itemName) .. "\n" .. (self.db.profile.reagentRequirements[itemName] or 0))
+		f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. "|cff00C621" .. GetItemCount(itemName))
 		f:SetScript("OnEnter", function()
 				GameTooltip:Hide(); -- workaround ?
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
@@ -463,22 +463,13 @@ function Hemlock:BAG_UPDATE(bag_id)
 				item:ContinueOnItemLoad(function()
 					local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
 					if f.item_type == 1 then
-						f:SetText(self:GetPoisonsInInventory(itemName) .. "\n" .. self.db.profile.poisonRequirements[itemName])
+						f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. "|cff00C621" .. self:GetPoisonsInInventory(itemName))
 					else
-						f:SetText(GetItemCount(itemName) .. "\n" .. self.db.profile.reagentRequirements[itemName])					
+						f:SetText(self.db.profile.reagentRequirements[itemName] .. "\n" .. "|cff00C621" .. GetItemCount(itemName))								
 					end
 					f:Enable()
 					f:GetNormalTexture():SetDesaturated(false)
 				end)
-			
-				-- local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
-				-- if f.item_type == 1 then
-					-- f:SetText(self:GetPoisonsInInventory(itemName) .. "\n" .. self.db.profile.poisonRequirements[itemName])
-				-- else
-						-- f:SetText(GetItemCount(itemName) .. "\n" .. self.db.profile.reagentRequirements[itemName])					
-				-- end
-				-- f:Enable()
-				-- f:GetNormalTexture():SetDesaturated(false)
 			end
 		end
 	end
