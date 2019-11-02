@@ -1,6 +1,16 @@
 <Ui>
 	<Script file="localization.lua" />
 	<Script file="Hemlock.lua" />
+	<Script file="Libs\LibStub\LibStub.lua"/>
+	
+	<Include file="Libs\AceAddon-3.0\AceAddon-3.0.xml"/>
+	<Include file="Libs\AceConsole-3.0\AceConsole-3.0.xml"/>
+	<Include file="Libs\AceGUI-3.0\AceGUI-3.0.xml"/>
+	<Include file="Libs\AceConfig-3.0\AceConfig-3.0.xml"/>
+	<Include file="Libs\LibDropdown-1.0\LibDropdown-1.0\lib.xml"/>
+	
+	<Button name="MyMenuButton" virtual="true">
+	</Button>
 	
 	<Button name="HemlockPoisonTemplate" virtual="true">
 		<Size>
@@ -18,8 +28,12 @@
 		<HighlightTexture inherits="DialogButtonHighlightTexture" />
 		<Scripts>
 			<OnEnter>
-				GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-				GameTooltip:SetText(this.tooltipText);
+				
+				<!-- GameTooltip:SetText(UIParent.tooltipText); -->
+				<!-- GameTooltip:SetPoint("LEFT", GetMouseFocus():GetName(), "RIGHT") -->
+				
+				<!-- GameTooltip:SetOwner(this,"ANCHOR_RIGHT"); -->
+				<!-- GameTooltip:SetText(this.tooltipText); -->
 			</OnEnter>
 			<OnLeave>
 				GameTooltip:Hide()
@@ -43,7 +57,7 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-		<Backdrop bgFile="Interface\Tooltips\UI-DialogBox-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+		<Backdrop bgFile="Interface\Garrison\ClassHallBackground" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
 			<BackgroundInsets>
 				<AbsInset left="4" right="4" top="4" bottom="4"/>
 			</BackgroundInsets>

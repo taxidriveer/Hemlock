@@ -10,7 +10,7 @@ Description: Minimalistic addon to automate poison buying and creation
 Dependencies: AceLibrary, Dewdrop-2.0
 ]]--
 
---[[*** Configuramation ***]]--
+--[[*** Configuration ***]]--
 
 --[[
 	-- Item IDs - using these precludes the need to hardcode icon paths or localize item names.
@@ -30,40 +30,32 @@ Dependencies: AceLibrary, Dewdrop-2.0
 local safeIDs = {6947, 5173, 3775}
 
 --[[ These should be the rank 1 poison IDs - ie, without a rank suffix! ]]--
-local poisonIDs = {6947, 2892, 3775, 10918, 5237, 21835}
+local poisonIDs = {6947, 2892, 3775, 10918, 5237}
 
 --[[ Flash powder. Don't need anything else right now. ]]--
 local reagentIDs = {5140}
 
---[[*** End Configuramation ***]]--
+--[[*** End Configuration ***]]--
 
-Hemlock = AceLibrary("AceAddon-2.0"):new("AceConsole-2.0", "AceEvent-2.0", "AceDB-2.0")
-if not AceLibrary("Dewdrop-2.0") then error("Hemlock requires Dewdrop-2.0") end
-Hemlock:RegisterDB("HemlockDB", "HemlockDBPC")
-local dewdrop = AceLibrary("Dewdrop-2.0")
+Hemlock = LibStub("AceAddon-3.0"):NewAddon("Hemlock", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
+
+-- local dewdrop = LibStub("AceAddon-3.0"):NewAddon("LibDropdown-1.0")
+-- local dewdrop = LibStub("LibDropdown-1.0"):OpenAce3Menu(Ace3ConfigTable)
+
+-- if not AceLibrary("Dewdrop-2.0") then error("Hemlock requires Dewdrop-2.0") end
+-- Hemlock:RegisterDB("HemlockDB", "HemlockDBPC")
+-- local dewdrop = AceLibrary("Dewdrop-2.0")
+
 
 local defaults = {
+  profile = {
 	poisonRequirements = {},
 	reagentRequirements = {},
 	autoBuy = {},
 	dontUse = {}
+  }
 }
 
-for k,v in ipairs(poisonIDs) do
-	local itemName = GetItemInfo(v)
-	if itemName then
-		defaults.poisonRequirements[itemName] = 0
-	end
-end
-
-for k,v in ipairs(reagentIDs) do
-	local itemName = GetItemInfo(v)
-	if itemName then
-		defaults.reagentRequirements[itemName] = 0
-	end
-end
-
-Hemlock:RegisterDefaults("profile", defaults)
 function Hemlock:Register()
 	local options = {
 	type='group',
@@ -94,8 +86,9 @@ function Hemlock:Register()
 					get = function()
 						return self.db.profile.poisonRequirements[k]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.poisonRequirements[k] = v2
+						self:InitFrames()
 					end
 				},
 				exclude = {
@@ -131,8 +124,9 @@ function Hemlock:Register()
 					get = function()
 						return self.db.profile.reagentRequirements[k]
 					end,
-					set = function(v2)
+					set = function(_,v2)
 						self.db.profile.reagentRequirements[k] = v2
+						self:InitFrames()
 					end
 				},
 				exclude = {
@@ -149,20 +143,44 @@ function Hemlock:Register()
 				},
 				autobuy = {
 					type = "toggle",
-					name = self:L("autobuy"),
-					desc = self:L("autobuy_desc", itemName),
-					get  = function() return self.db.profile.autoBuy[k] end,
+					name = self:L("autobuy", k),
+					desc = self:L("autobuy_desc", itemName, k),
+					get = function() return self.db.profile.autoBuy[k] end,
 					set	= function(v) self.db.profile.autoBuy[k] = v end
 				}
 			}						
 		}
 	end
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("Hemlock", options, {"HEMLOCK"})
+	self.db:RegisterDefaults(defaults)
+end
 
-	Hemlock:RegisterChatCommand({"/hemlock"}, options, "HEMLOCK")
+function Hemlock:InitializeDB()
+for k,v in ipairs(poisonIDs) do
+	local item = Item:CreateFromItemID(v)
+	item:ContinueOnItemLoad(function()
+		local itemName = GetItemInfo(v)	
+		defaults.profile.poisonRequirements[itemName] = 0
+	end)
+end
+
+for k,v in ipairs(reagentIDs) do
+	local item = Item:CreateFromItemID(v)
+	item:ContinueOnItemLoad(function()
+		local itemName = GetItemInfo(v)	
+		print(itemName)
+		defaults.profile.reagentRequirements[itemName] = 0
+	end)
+end
 end
 
 function Hemlock:OnInitialize()
-	self:Register()
+	self.db = LibStub("AceDB-3.0"):New("HemlockDB", defaults, true)
+	self.db = LibStub("AceDB-3.0"):New("HemlockDBPC", defaults, true)
+	self:InitializeDB()
+	C_Timer.After(0.2, function() -- added delay to cache items
+		self:Register()
+	end)
 	-- self:Print("Hemlock is initializing")
 	self.enabled = false
 	self:RegisterEvent("MERCHANT_SHOW");
@@ -174,6 +192,7 @@ function Hemlock:OnInitialize()
 end
 
 function Hemlock:PLAYER_LOGIN()
+	
 	-- Detect whether or not we know poison.
 	for i = 1, MAX_SKILLLINE_TABS do
 		local name, texture, offset, numSpells = GetSpellTabInfo(i);
@@ -181,22 +200,28 @@ function Hemlock:PLAYER_LOGIN()
 			break;
 		end
 		for s = offset + 1, offset + numSpells do
-			local spell, rank = GetSpellName(s, BOOKTYPE_SPELL);
+			local spell, rank = GetSpellBookItemName(s, BOOKTYPE_SPELL);
 			local texture = GetSpellTexture(s, BOOKTYPE_SPELL)
-			-- self:Print(s, spell, rank, texture, strfind(texture, "Trade_BrewPoison"))
-			if strfind(texture, "Trade_BrewPoison") then
+
+			-- self:Print(s, spell, rank, texture, strfind(texture, "136242"))
+			if strfind(texture, "136242") then
 				self.poisonSpellName = spell
+				-- self:Print(spell)
 				break
 			end
 		end
 		if self.poisonSpellName then break end
 	end
+	
 	if not self.poisonSpellName then return end
 	for k,v in ipairs(safeIDs) do
-		if not GetItemInfo(v) then
-			StaticPopup_Show("HEMLOCK_NOTIFY_NEED_SCAN")
-			break
-		end
+		local item = Item:CreateFromItemID(v)
+		item:ContinueOnItemLoad(function()
+			local itemName = GetItemInfo(v)	
+			if not GetItemInfo(v) then
+				StaticPopup_Show("HEMLOCK_NOTIFY_NEED_SCAN")
+			end
+		end)	
 	end
 end
 
@@ -218,9 +243,13 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		f:SetPoint("TOP", lastFrame, "BOTTOM", 0, space)
 	end
 	f:SetNormalTexture(invTexture)
+	-- f:SetFrameStrata("TOOLTIP") -- not working, it look like the frame is anchored to the tradeskill window
 	f:Show()
-	f.tooltipText = self:L("clicktobuy") .. "\n" .. self:L("clicktoset",itemName)
-	local menu = {}
+	f.tooltipText = itemName
+	-- GameTooltip:SetText(itemName);
+	-- f.tooltipText = self:L("clicktobuy") .. "\n" .. self:L("clicktoset",itemName)
+	
+	-- local menu = {}
 	if frameType == 1 then
 		menu = {
 			type = "group",
@@ -239,9 +268,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					end,
 					set = function(v2)
 						self.db.profile.poisonRequirements[itemName] = v2
-						dewdrop:GetOpenedParent():SetText(
-								Hemlock:GetPoisonsInInventory(itemName) .. "\n" .. Hemlock.db.profile.poisonRequirements[itemName]
-						)
+						-- dewdrop:GetOpenedParent():SetText(
+								-- Hemlock:GetPoisonsInInventory(itemName) .. "\n" .. Hemlock.db.profile.poisonRequirements[itemName]
+						-- )
 					end
 				},
 				exclude = {
@@ -260,18 +289,24 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		}
 
 		f:SetText(self:GetPoisonsInInventory(itemName) .. "\n" .. self.db.profile.poisonRequirements[itemName])
+		f:SetScript("OnEnter", function()
+				GameTooltip:Hide(); -- workaround ?
+				GameTooltip:Show();
+				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
+				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT",3, 0);
+				GameTooltip:SetText(f.tooltipText);
+				GameTooltip:AddLine (self:L("clicktobuy"), 1, 1, 1);
+				GameTooltip:AddLine (self:L("clicktoset"), 1, 1, 1);
+		end)
 		f:SetScript("OnClick", function()
+			-- Hemlock:CreateMenu() -- call the menu
 			if TradeSkillFrame and TradeSkillFrame:IsVisible() then
 				Hemlock:GetNeededPoisons(itemName, f)
 			else
 				CastSpellByName(self.poisonSpellName)
-				if TradeSkillFrame and not TradeSkillFrame:IsVisible() then
-					CastSpellByName(self.poisonSpellName)
-				end
-				if TradeSkillFrame and TradeSkillFrame:IsVisible() then
-					CastSpellByName(self.poisonSpellName)
-				end
-				Hemlock:GetNeededPoisons(itemName, f)
+				C_Timer.After(0.1, function() 
+					Hemlock:GetNeededPoisons(itemName, f) 
+				end)				
 			end
 		end)
 	else
@@ -292,9 +327,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					end,
 					set = function(v2)
 						self.db.profile.reagentRequirements[itemName] = v2
-						dewdrop:GetOpenedParent():SetText(
-								GetItemCount(itemName) .. "\n" .. Hemlock.db.profile.reagentRequirements[itemName]
-						)
+						-- dewdrop:GetOpenedParent():SetText(
+								-- GetItemCount(itemName) .. "\n" .. Hemlock.db.profile.reagentRequirements[itemName]
+						-- )
 					end
 				},
 				autobuy = {
@@ -320,6 +355,15 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		}
 
 		f:SetText(GetItemCount(itemName) .. "\n" .. (self.db.profile.reagentRequirements[itemName] or 0))
+		f:SetScript("OnEnter", function()
+				GameTooltip:Hide(); -- workaround ?
+				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
+				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT", 3, 0);
+				GameTooltip:SetText(f.tooltipText);
+				GameTooltip:AddLine (self:L("clicktobuy"), 1, 1, 1);
+				GameTooltip:AddLine (self:L("clicktoset"), 1, 1, 1);
+				GameTooltip:Show();
+		end)
 		f:SetScript("OnClick", function()
 			local toBuy = self.db.profile.reagentRequirements[itemName] - GetItemCount(itemName)
 			if toBuy > 0 then
@@ -330,7 +374,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		end)
 	end
 
-	dewdrop:Register(f, 'children', menu, 'point', function(parent) return "TOPLEFT", "TOPRIGHT" end)
+	-- dewdrop:Register(f, 'children', menu, 'point', function(parent) return "TOPLEFT", "TOPRIGHT" end)
 	f.item_id = itemID
 	f.item_type = frameType
 	if self.db.profile.dontUse[itemName] then
@@ -370,6 +414,7 @@ end
 
 function Hemlock:MERCHANT_SHOW()
 	local localclass, trueclass = UnitClass("player")
+
 	if trueclass ~= "ROGUE" or not self.poisonSpellName or not IsUsableSpell(self.poisonSpellName) or not self.enabled then return end
 
 	if not self.inited then
@@ -390,19 +435,23 @@ function Hemlock:MERCHANT_SHOW()
 	local haveNils = false
 	self.claimedReagents = {}
 	for i = 1, GetMerchantNumItems() do
-		local link = GetMerchantItemLink(i)
-		-- self:Print(link)
-		-- If this is a deathweed vendor, we'll assume he's selling poison.
-		if link and strfind(link, "Hitem:5173:") then
-			HemlockFrame:Show()
-			Hemlock:BAG_UPDATE()
-			break
-		elseif not link then
-			haveNils = true
-		end
+		local id = GetMerchantItemID(i)
+		local item = Item:CreateFromItemID(id)	
+		item:ContinueOnItemLoad(function()
+			local link = GetMerchantItemLink(i)
+			-- If this is a deathweed vendor, we'll assume he's selling poison.
+			if link and strfind(link, "Hitem:5173:") then
+				HemlockFrame:Show()
+				Hemlock:BAG_UPDATE()
+				return
+			elseif not link then
+				haveNils = true
+			end
+		end)
 	end
+	-- We are not supposed to see this anymore since we are using ContinueOnItemLoad
 	if haveNils then
-		-- self:Print(self:L("cached_data_warning"))
+		self:Print(self:L("cached_data_warning"))
 	end
 end
 
@@ -410,14 +459,26 @@ function Hemlock:BAG_UPDATE(bag_id)
 	if HemlockFrame:IsVisible() then
 		for k, f in pairs(self.frames) do
 			if f then
-				local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
-				if f.item_type == 1 then
-					f:SetText(self:GetPoisonsInInventory(itemName) .. "\n" .. self.db.profile.poisonRequirements[itemName])
-				else
-					f:SetText(GetItemCount(itemName) .. "\n" .. self.db.profile.reagentRequirements[itemName])
-				end
-				f:Enable()
-				f:GetNormalTexture():SetDesaturated(false)
+				local item = Item:CreateFromItemID(f.item_id)	
+				item:ContinueOnItemLoad(function()
+					local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
+					if f.item_type == 1 then
+						f:SetText(self:GetPoisonsInInventory(itemName) .. "\n" .. self.db.profile.poisonRequirements[itemName])
+					else
+						f:SetText(GetItemCount(itemName) .. "\n" .. self.db.profile.reagentRequirements[itemName])					
+					end
+					f:Enable()
+					f:GetNormalTexture():SetDesaturated(false)
+				end)
+			
+				-- local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
+				-- if f.item_type == 1 then
+					-- f:SetText(self:GetPoisonsInInventory(itemName) .. "\n" .. self.db.profile.poisonRequirements[itemName])
+				-- else
+						-- f:SetText(GetItemCount(itemName) .. "\n" .. self.db.profile.reagentRequirements[itemName])					
+				-- end
+				-- f:Enable()
+				-- f:GetNormalTexture():SetDesaturated(false)
 			end
 		end
 	end
@@ -438,7 +499,8 @@ end
 
 function Hemlock:GetMaxPoisonRank(poisonName)
 	local ranks = {}
-	TradeSkillFrameAvailableFilterCheckButton:SetChecked(false)
+	-- TradeSkillFilterDropDown:SetChecked(false)
+	-- poisonName = gsub(poisonName, "%-", "%%%-")
 	poisonName = gsub(poisonName, "%-", "%%%-")
 	for i = 1, GetNumTradeSkills() do
 		local name, type = GetTradeSkillInfo(i)
@@ -458,7 +520,6 @@ function Hemlock:GetMaxPoisonRank(poisonName)
 			end
 		end
 	end
-
 	return ranks[1][1], ranks[1][2]
 end
 
@@ -519,7 +580,8 @@ function Hemlock:GetNeededPoisons(name, frame)
 				if toBuy > 0 then
 					frame:Disable()
 					frame:GetNormalTexture():SetDesaturated(true)
-					self:ScheduleEvent(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
+					-- self:ScheduleEvent(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
+					self:ScheduleTimer(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
 					local buyResult = self:BuyVendorItem(reagentName, toBuy)
 					if not buyResult then
 						Hemlock:Print(self:L("unableToBuy", toBuy, reagentName))
@@ -584,12 +646,12 @@ function Hemlock:ScanPoisons(step)
 				break
 			end
 		end
-		CastSpellByName(self.poisonSpellName)
+		-- CastSpellByName(self.poisonSpellName) -- this is closing the window...
 		self:Print(self:L("scan_step_1", "[1/3]"))
-		self:ScheduleEvent(function() self:ScanPoisons(2) end, 4)
+		self:ScheduleTimer(function() self:ScanPoisons(2) end, 2)	 
 	end
 
-	TradeSkillFrameAvailableFilterCheckButton:SetChecked(false)
+	-- TradeSkillFilterDropDown:SetChecked(false)
 	if step == 2 or step == 3 then
 		GameTooltip:SetOwner(UIParent, "ANCHOR_LEFT")
 		for i = 1, GetNumTradeSkills() do
@@ -597,12 +659,14 @@ function Hemlock:ScanPoisons(step)
 			if skillType ~= "header" then
 				GameTooltip:SetTradeSkillItem(i)
 				local link = GetTradeSkillItemLink(i)
+				GameTooltip:Hide()
 			end
 		end
 		if step == 2 then
 			self:Print(self:L("scan_step_2", "[2/3]"))
 		end
-		self:ScheduleEvent(function() self:ScanPoisons(step + 1) end, 2)
+		-- self:ScheduleEvent(function() self:ScanPoisons(step + 1) end, 2)
+		self:ScheduleTimer(function() self:ScanPoisons(step + 1) end, 2)
 	end
 
 	if step == 4 then
@@ -612,11 +676,13 @@ function Hemlock:ScanPoisons(step)
 			if skillType ~= "header" then
 				GameTooltip:SetTradeSkillItem(i)
 				local link = GetTradeSkillItemLink(i)
+				-- self:Print(link);
 				if link then
 					for n = 1,2 do
 						for j = 1, GetTradeSkillNumReagents(i) do
 								GameTooltip:SetTradeSkillItem(i, j)
 								link = GetTradeSkillReagentItemLink(i, j)
+								GameTooltip:Hide()
 						end
 					end
 				end
@@ -628,10 +694,61 @@ end
 
 StaticPopupDialogs["HEMLOCK_NOTIFY_NEED_SCAN"] = {
 	text = Hemlock:L("need_scan"),
-	button1 = TEXT(YES),
-	button2 = TEXT(NO),
+	button1 = "YES",
+	button2 = "NO",
 	timeout = 0,
 	showAlert = 1,
 	hideOnEscape = 1,
 	OnAccept = function() Hemlock:ScanPoisons(1) end
 };
+
+
+local LibDropdown = LibStub:GetLibrary("LibDropdown-1.0")
+
+-- ???
+local Ace3ConfigTable = {
+   type = "group",
+   handler = BulkMail,
+   set = _editCallbackMethod,
+   get = function() return nil end,
+   args = {
+      inline = {
+	 type = "header",
+	 name = L["Add rule"],
+	 inline = true,
+	 order = 0,
+      },
+      itemIDs = {
+	 type = "input",
+	 name = L["ItemID(s)"],
+	 desc = L["Usage: <itemID> [itemID2, ...]"]
+      }
+   }
+}
+
+   -- create the menu   
+menuFrame = LibDropdown:OpenAce3Menu(Ace3ConfigTable)
+
+   -- Anchor the menu to the mouse
+function Hemlock:CreateMenu()
+local xpos, ypos = GetCursorPosition()
+Hemlock:Print(xpos, ypos);
+local scale = UIParent:GetEffectiveScale()
+menuFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", xpos / scale, ypos / scale)
+-- menuFrame:SetFrameLevel(HemlockPoisonButton:GetFrameLevel()+100)
+end
+
+
+-- local Menu = LibStub("LibDropdown-1.0"):NewButton(UIParent, 'Hemlock')
+-- Menu:SetPoint('CENTER', 0, -50)
+-- Menu:SetJustifyH('LEFT')
+-- Menu:SetStyle('MENU') -- can be omitted, defaults to 'DEFAULT'
+-- Menu:SetText('My Dropdown')
+
+-- Menu:Add({
+    -- checked = true,
+    -- text = 'Line 1',
+    -- args = {'value1', 'value2'}
+    -- func = function() (print('click')) end
+-- })
+
