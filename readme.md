@@ -15,7 +15,6 @@ Click once to buy the exact amount of components you need, click a second time t
 Hemlock also keep track of your inventory so it won't buy more reagents than needed!
 
 ![alt text](https://i.imgur.com/QtaBMds.png)
-![alt text](https://i.imgur.com/Eshana7.png)
 Numbers appears in red is when Hemlock have to buy poisons to reach the threshold, numbers are in green are when you already have enought poisons.
 
 Lacking Features, Ideas & Problems
