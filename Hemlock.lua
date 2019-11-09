@@ -38,14 +38,6 @@ local reagentIDs = {5140}
 --[[*** End Configuration ***]]--
 
 Hemlock = LibStub("AceAddon-3.0"):NewAddon("Hemlock", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
-LDMenu = LibStub("LibDropdown-1.0")
-
--- local LibDropdown = LibStub("AceAddon-3.0"):NewAddon("LibDropdown-1.0")
--- local dewdrop = LibStub("LibDropdown-1.0"):OpenAce3Menu(Ace3ConfigTable)
-
--- if not AceLibrary("Dewdrop-2.0") then error("Hemlock requires Dewdrop-2.0") end
--- Hemlock:RegisterDB("HemlockDB", "HemlockDBPC")
--- local dewdrop = AceLibrary("Dewdrop-2.0")
 
 
 local defaults = {
@@ -179,7 +171,7 @@ function Hemlock:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("HemlockDB", defaults, true)
 	self.db = LibStub("AceDB-3.0"):New("HemlockDBPC", defaults, true)
 	self:InitializeDB()
-	C_Timer.After(0.2, function() -- added delay to cache items
+	C_Timer.After(0.2, function() -- Delay to cache items
 		self:Register()
 	end)
 	-- self:Print("Hemlock is initializing")
@@ -203,11 +195,8 @@ function Hemlock:PLAYER_LOGIN()
 		for s = offset + 1, offset + numSpells do
 			local spell, rank = GetSpellBookItemName(s, BOOKTYPE_SPELL);
 			local texture = GetSpellTexture(s, BOOKTYPE_SPELL)
-
-			-- self:Print(s, spell, rank, texture, strfind(texture, "136242"))
 			if strfind(texture, "136242") then
 				self.poisonSpellName = spell
-				-- self:Print(spell)
 				break
 			end
 		end
@@ -244,10 +233,8 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		f:SetPoint("TOP", lastFrame, "BOTTOM", 0, space)
 	end
 	f:SetNormalTexture(invTexture)
-	-- f:SetFrameStrata("TOOLTIP") -- not working, it look like the frame is anchored to the tradeskill window
 	f:Show()
 	f.tooltipText = itemName
-	-- f.tooltipText = self:L("clicktobuy") .. "\n" .. self:L("clicktoset",itemName)
 	
 	local menu = {}
 	if frameType == 1 then
@@ -289,8 +276,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. "|cff00C621" .. self:GetPoisonsInInventory(itemName))
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
-				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
-				LDMenu:Release();
+				if (LDDMenu) then
+					LDDMenu:Release();
+				end
 				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT",3, 0);
@@ -311,8 +299,8 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			end
 			if (button == "RightButton") then
 				GameTooltip:Hide();
-				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
-				LDMenu:SetPoint("TOPLEFT", "HemlockPoisonButton" .. itemID, "TOPRIGHT", 3, 1);
+				LDDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
+				LDDMenu:SetPoint("TOPLEFT", "HemlockPoisonButton" .. itemID, "TOPRIGHT", 3, 1);
 			end
 		end)
 	else
@@ -361,8 +349,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. "|cff00C621" .. GetItemCount(itemName))
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
-				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
-				LDMenu:Release();
+				if (LDDMenu) then
+					LDDMenu:Release();
+				end
 				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT", 3, 0);
@@ -381,13 +370,12 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			end
 			if (button == "RightButton") then
 				GameTooltip:Hide();
-				LDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
-				LDMenu:SetPoint("TOPLEFT", "HemlockPoisonButton" .. itemID, "TOPRIGHT", 3, 1);
+				LDDMenu = LibStub("LibDropdown-1.0"):OpenAce3Menu(menu)
+				LDDMenu:SetPoint("TOPLEFT", "HemlockPoisonButton" .. itemID, "TOPRIGHT", 3, 1);
 			end
 		end)
 	end
 
-	-- dewdrop:Register(f, 'children', menu, 'point', function(parent) return "TOPLEFT", "TOPRIGHT" end)
 	f.item_id = itemID
 	f.item_type = frameType
 	if self.db.profile.dontUse[itemName] then
@@ -504,7 +492,6 @@ end
 function Hemlock:GetMaxPoisonRank(poisonName)
 	local ranks = {}
 	-- TradeSkillFilterDropDown:SetChecked(false)
-	-- poisonName = gsub(poisonName, "%-", "%%%-")
 	poisonName = gsub(poisonName, "%-", "%%%-")
 	for i = 1, GetNumTradeSkills() do
 		local name, type = GetTradeSkillInfo(i)
@@ -586,9 +573,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 				if toBuy > 0 then
 					frame:Disable()
 					frame:GetNormalTexture():SetDesaturated(true)
-					-- self:ScheduleEvent(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
 					self:ScheduleTimer(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
-					-- Hemlock:Print("reagentName:",reagentName, "tobuy:", toBuy, "line 576");
 					local buyResult = self:BuyVendorItem(reagentName, toBuy)
 					if not buyResult then
 						Hemlock:Print(self:L("unableToBuy", toBuy, reagentName))
