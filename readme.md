@@ -21,6 +21,5 @@ Hemlock also keep track of your inventory so it won't buy more reagents than nee
 3. Left-click again to automatically craft your poisons.
 alt textThe number of poisons in your inventory appears in red is when the threshold is not reached and green are when you already have enough poisons. 
 
-Lacking Features, Ideas & Problems
-----------------------------------
+**Lacking Features, Ideas & Problems**
 - Display a warning message if you don't have enough space in your inventory to buy the reagents.
