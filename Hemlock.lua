@@ -217,6 +217,7 @@ end
 
 function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(itemID)
+
 	if not itemName then return nil end
 	if not self.db.profile.poisonRequirements[itemName] then
 		self.db.profile.poisonRequirements[itemName] = 0
@@ -272,8 +273,17 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				},				
 			}
 		}
-
-		f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. "|cff00C621" .. self:GetPoisonsInInventory(itemName))
+		
+		-- Coloring
+		local poisonRequirement = self.db.profile.poisonRequirements[itemName]
+		local poisonInventory = self:GetPoisonsInInventory(itemName)
+		if (poisonRequirement > poisonInventory) then
+			color = "|cffff0055"
+		else
+			color = "|cff00C621"
+		end		
+		f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. color .. self:GetPoisonsInInventory(itemName))
+		
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
 				if (LDDMenu) then
@@ -346,7 +356,16 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			}
 		}
 
-		f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. "|cff00C621" .. GetItemCount(itemName))
+		-- Coloring
+		local reagentRequirements = self.db.profile.reagentRequirements[itemName]
+		local reagentInventory = GetItemCount(itemName)
+		if (reagentRequirements > reagentInventory) then
+			color = "|cffff0055"
+		else
+			color = "|cff00C621"
+		end	
+		f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. color .. GetItemCount(itemName))
+		
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
 				if (LDDMenu) then
@@ -464,9 +483,23 @@ function Hemlock:BAG_UPDATE(bag_id)
 				item:ContinueOnItemLoad(function()
 					local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
 					if f.item_type == 1 then
-						f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. "|cff00C621" .. self:GetPoisonsInInventory(itemName))
+						local poisonRequirement = self.db.profile.poisonRequirements[itemName]
+						local poisonInventory = self:GetPoisonsInInventory(itemName)
+						if (poisonRequirement > poisonInventory) then
+							color = "|cffff0055"
+						else
+							color = "|cff00C621"
+						end		
+						f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. color .. self:GetPoisonsInInventory(itemName))
 					else
-						f:SetText(self.db.profile.reagentRequirements[itemName] .. "\n" .. "|cff00C621" .. GetItemCount(itemName))								
+						local reagentRequirements = self.db.profile.reagentRequirements[itemName]
+						local reagentInventory = GetItemCount(itemName)
+						if (reagentRequirements > reagentInventory) then
+							color = "|cffff0055"
+						else
+							color = "|cff00C621"
+						end	
+						f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. color .. GetItemCount(itemName))							
 					end
 					f:Enable()
 					f:GetNormalTexture():SetDesaturated(false)
