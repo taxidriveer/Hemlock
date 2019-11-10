@@ -4,7 +4,7 @@
 ## Notes: Minimalistic addon to automate poison buying and creation
 ## Notes-zhCN: 自动购买及制毒的极简插件
 ## Notes-zhTW: 自動購買及製毒的極簡插件
-## Author: Antiarc
+## Author: Antiarc, Grome
 ## OptionalDeps: Ace3, LibDropdown-1.0
 ## SavedVariables: HemlockDB
 ## SavedVariablesPerCharacter: HemlockDBPC
