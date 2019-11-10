@@ -59,6 +59,12 @@ function Hemlock:Register()
 			func = function() Hemlock:ScanPoisons(1) end,
 			name = self:L("Scan Poisons"),
 			desc = self:L("Scan Poison Desc")
+		},
+		reset = {
+			type = "execute",
+			func = function() Hemlock:Reset() end,
+			name = self:L("cmd_reset"),
+			desc = self:L("cmd_reset_desc"),
 		}
 	}
 	}
@@ -431,8 +437,11 @@ function Hemlock:InitFrames()
 		local lf = Hemlock:MakeFrame(v, space, lastFrame, 2)
 		if lf then lastFrame = lf end
 	end
-	
-	HemlockFrame:SetHeight((lastFrame:GetHeight() + math.abs(space)) * self.frameIndex + math.abs(space))
+	if lastFrame then
+		HemlockFrame:SetHeight((lastFrame:GetHeight() + math.abs(space)) * self.frameIndex + math.abs(space))
+	else
+		Hemlock:Print("Type |cffffff78/Hemlock reset|r to show all the icons again.")
+	end
 end
 
 function Hemlock:OnEnable()
@@ -441,6 +450,11 @@ end
 
 function Hemlock:OnDisable()
 	self.enabled = false
+end
+
+function Hemlock:Reset()
+	self.db.profile.dontUse = {}
+	self:InitFrames()
 end
 
 function Hemlock:MERCHANT_SHOW()
