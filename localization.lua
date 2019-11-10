@@ -45,7 +45,8 @@ HemlockLocalization = {
 		["Scan Poison Desc"]	= "Scan poison tradeskills for usable information",
 		["dont_include"]		= "Suspendisse efficitur elit eget interdum faucibus.",
 		["dont_include_desc"]	= "Phasellus consectetur elit a mollis fermentum.",
-		["cmd_description"]		= "Phasellus rhoncus ipsum ut aliquam vehicula.",
+		["cmd_poison_description"]	= "Phasellus rhoncus ipsum ut aliquam vehicula.",
+		["cmd_reagent_description"]	= "Nulla facilisi. Nullam posuere gravida leo. Integer tempus quam id libero.",
 	},
 	["koKR"] = {
 		["specify_make"]		= "인벤토리를 다시 채우기 위해 Hemlock에 원하는 $S의 수량을 지정하세요.",
@@ -68,6 +69,8 @@ HemlockLocalization = {
 		["Scan Poison Desc"]		= "사용할 정보를 위해 독 전문 기술을 검색합니다.",
 		["dont_include"]		= "제외",
 		["dont_include_desc"]		= "Hemlock 버튼에 $S|1을;를; 포함시키지 않습니다.",
+		["cmd_poison_description"]	= "Configure options for this poison",
+		["cmd_reagent_description"]	= "Configure options for this reagent",
 	},
 	["zhCN"] = {
 		["specify_make"]		= "请指定您希望制毒助手帮助您自动补充的 $S 的数量.",
@@ -90,6 +93,8 @@ HemlockLocalization = {
 		["Scan Poison Desc"]		= "扫描毒药技能来获取信息",
 		["dont_include"]		= "排除",
 		["dont_include_desc"]		= "不要在制毒助手快捷按键中包含 $S",
+		["cmd_poison_description"]	= "Configure options for this poison",
+		["cmd_reagent_description"]	= "Configure options for this reagent",
 	},
 	["zhTW"] = {
 		["specify_make"]		= "請指定您希望製毒助手幫助您自動補充的 $S 的數量",
@@ -112,5 +117,7 @@ HemlockLocalization = {
 		["Scan Poison Desc"]		= "掃描毒藥技能來獲取資訊",
 		["dont_include"]		= "排除",
 		["dont_include_desc"]		= "不要在製毒助手快捷按鍵中包含 $S",
+		["cmd_poison_description"]	= "Configure options for this poison",
+		["cmd_reagent_description"]	= "Configure options for this reagent",
 	},
 }

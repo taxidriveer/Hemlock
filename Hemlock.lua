@@ -272,7 +272,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 						commanddItemName = itemName:gsub("%s+", "")
 						local buttonStatus = self.db.profile.dontUse[itemName]
 						if (buttonStatus) then
-							Hemlock:Print("Type |cff33ff99/Hemlock",commanddItemName,"exclude|r to show the icon again.")
+							Hemlock:Print("Type |cffffff78/Hemlock",commanddItemName,"exclude|r to show the icon again.")
 						end
 						self:InitFrames()
 					end
@@ -359,7 +359,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 						commanddItemName = itemName:gsub("%s+", "")
 						local buttonStatus = self.db.profile.dontUse[itemName]
 						if (buttonStatus) then
-							Hemlock:Print("Type |cff33ff99/Hemlock",commanddItemName,"exclude|r to show the icon again.")
+							Hemlock:Print("Type |cffffff78/Hemlock",commanddItemName,"exclude|r to show the icon again.")
 						end
 						self:InitFrames()
 					end
