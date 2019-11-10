@@ -3,7 +3,8 @@ Fan Update
 **Use at your own risk!**
 
 * Migrated to Ace3 / LibDropDown
-* Support for WoW Classic
+* Support for Classic
+* Temporaly disabled the UI (use /hemlock)
 
 
 Hemlock - Minimalistic addon to automate poison buying and creation
@@ -22,6 +23,7 @@ It doesn't make you bother with ranks or anything - it assumes you want to refil
 Hemlock also keep track of your inventory so it won't buy more reagents than needed!
 3. Left-click again to automatically craft your poisons.
 alt textThe number of poisons in your inventory appears in red is when the threshold is not reached and green are when you already have enough poisons. 
+![alt text](https://i.imgur.com/iOqOjZZ.png)
 
 **Lacking Features, Ideas & Problems**
 
