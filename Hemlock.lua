@@ -67,7 +67,7 @@ function Hemlock:Register()
 		options.args[gsub(k, " ", "")] = {
 			type = "group",
 			name = k,
-			desc = k,
+			desc = self:L("cmd_poison_description"),
 			args = {
 				amount = {
 					type = 'range',
@@ -105,7 +105,7 @@ function Hemlock:Register()
 		options.args[gsub(k, " ", "")] = {
 			type = "group",
 			name = k,
-			desc = k,
+			desc = self:L("cmd_reagent_description"),
 			args = {
 				amount = {
 					type = 'range',
@@ -145,7 +145,7 @@ function Hemlock:Register()
 			}						
 		}
 	end
-	LibStub("AceConfig-3.0"):RegisterOptionsTable("Hemlock", options, {"HEMLOCK"})
+	LibStub("AceConfig-3.0"):RegisterOptionsTable("Hemlock", options, {"Hemlock"})
 	self.db:RegisterDefaults(defaults)
 end
 
