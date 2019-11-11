@@ -303,9 +303,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT",3, 0);
-				GameTooltip:SetText(f.tooltipText);
-				GameTooltip:AddLine (self:L("clicktobuy"), 1, 1, 1);
-				GameTooltip:AddLine (self:L("clicktoset",itemName), 1, 1, 1);
+				GameTooltip:SetText(f.tooltipText .. "\n|cffffffff" .. self:L("clicktobuy") .. "\n" .. self:L("clicktoset"));
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then
@@ -390,9 +388,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT", 3, 0);
-				GameTooltip:SetText(f.tooltipText);
-				GameTooltip:AddLine (self:L("clicktobuy"), 1, 1, 1);
-				GameTooltip:AddLine (self:L("clicktoset",itemName), 1, 1, 1);
+				GameTooltip:SetText(f.tooltipText .. "\n|cffffffff" .. self:L("clicktobuy") .. "\n" .. self:L("clicktoset"));
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then

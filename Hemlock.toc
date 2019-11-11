@@ -3,7 +3,7 @@
 ## Title: Hemlock
 ## Notes: Minimalistic addon to automate poison buying and creation
 ## Author: Antiarc, Grome
-## OptionalDeps: Ace3, LibDropdown-1.0
+## OptionalDeps: Ace3, LibDropdown-1.0, LibStub
 ## SavedVariables: HemlockDB
 ## SavedVariablesPerCharacter: HemlockDBPC
 ## X-Category: Rogue
