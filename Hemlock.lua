@@ -168,7 +168,6 @@ for k,v in ipairs(reagentIDs) do
 	local item = Item:CreateFromItemID(v)
 	item:ContinueOnItemLoad(function()
 		local itemName = GetItemInfo(v)	
-		print(itemName)
 		defaults.profile.reagentRequirements[itemName] = 0
 	end)
 end
