@@ -25,7 +25,7 @@ Hemlock also keep track of your inventory so it won't buy more reagents than nee
 alt textThe number of poisons in your inventory appears in red is when the threshold is not reached and green are when you already have enough poisons. 
 ![alt text](https://i.imgur.com/iOqOjZZ.png)
 
-*/hemlock reset* to show all poisons/reagents buttons.
+*/hemlock reset* to show all poisons and reagents buttons.
 
 **Lacking Features, Ideas & Problems**
 
