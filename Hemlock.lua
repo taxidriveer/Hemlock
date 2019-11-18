@@ -397,6 +397,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					Hemlock:BuyVendorItem(itemName, toBuy)
 				else
 					Hemlock:Print(Hemlock:L("skippingReagent", itemName, Hemlock.db.profile.reagentRequirements[itemName], GetItemCount(itemName)))
+					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 				end
 			end
 			if (button == "RightButton") then
@@ -435,7 +436,7 @@ function Hemlock:InitFrames()
 	if lastFrame then
 		HemlockFrame:SetHeight((lastFrame:GetHeight() + math.abs(space)) * self.frameIndex + math.abs(space))
 	else
-		Hemlock:Print("Type |cffffff78/Hemlock reset|r to show all the icons again.")
+		Hemlock:Reset()
 	end
 end
 
@@ -664,6 +665,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 				self.claimedReagents[skillIndex] = nil
 		else
 			Hemlock:Print(self:L("skipping", name, amt, count))
+			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 		end
 	end
 end
