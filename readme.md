@@ -3,7 +3,7 @@ Fan Update
 
 * Migrated to Ace3 / LibDropDown
 * Support for Classic
-* enUS, frFR, koKR, zhCN, zhTW translation
+* enUS, frFR, koKR, zhCN, zhTW local support
 
 
 Hemlock - Minimalistic addon to automate poison buying and creation
