@@ -2,7 +2,7 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1 $
+Revision: $Rev: 1.0.4 $
 Developed by: Antiarc
 Fan update by: Grome
 Documentation:
@@ -277,7 +277,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 						commanddItemName = itemName:gsub("%s+", "")
 						local buttonStatus = self.db.profile.dontUse[itemName]
 						if (buttonStatus) then
-							Hemlock:Print("Type |cffffff78/Hemlock",commanddItemName,"exclude|r to show the icon again.")
+							Hemlock:Print(self:L("exclude_message", commanddItemName))
 						end
 						self:InitFrames()
 					end
@@ -362,7 +362,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 						commanddItemName = itemName:gsub("%s+", "")
 						local buttonStatus = self.db.profile.dontUse[itemName]
 						if (buttonStatus) then
-							Hemlock:Print("Type |cffffff78/Hemlock",commanddItemName,"exclude|r to show the icon again.")
+							Hemlock:Print(self:L("exclude_message", commanddItemName))
 						end
 						self:InitFrames()
 					end
@@ -450,6 +450,7 @@ end
 function Hemlock:Reset()
 	self.db.profile.dontUse = {}
 	self:InitFrames()
+	self:Print(self:L("cmd_reset_message"))
 end
 
 function Hemlock:MERCHANT_SHOW()
