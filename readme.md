@@ -1,10 +1,9 @@
 Fan Update
 ---------------------------------------
-**Use at your own risk!**
 
 * Migrated to Ace3 / LibDropDown
 * Support for Classic
-* Temporaly disabled the UI (use /hemlock)
+* enUS, frFR, koKR, zhCN, zhTW translation
 
 
 Hemlock - Minimalistic addon to automate poison buying and creation
