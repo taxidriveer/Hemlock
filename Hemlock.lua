@@ -620,7 +620,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 				local toBuy = (reagentCount * toMake)
 				local need = toBuy
 				for k,v in pairs(self.claimedReagents) do
-					if v[reagentName] and k ~= skillIndex then
+					if v[reagentName] and k ~= skillIndex and playerReagentCount < 0 then
 						playerReagentCount = playerReagentCount - v[reagentName]
 					end
 				end
