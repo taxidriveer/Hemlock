@@ -250,8 +250,8 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			args = {
 				slider = {
 					type = 'range',
-					name = itemName,
-					desc = self:L("specify_make", itemName),
+					name = "|cffffffff" .. itemName,
+					desc = "|cffffd200" .. self:L("specify_make", itemName),
 					min = 0,
 					max = 100,
 					step = 5,
@@ -267,8 +267,8 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				},
 				exclude = {
 					type = "toggle",
-					name = self:L("dont_include", itemName),
-					desc = self:L("dont_include_desc", itemName),
+					name = "|cffffffff" .. self:L("dont_include", itemName),
+					desc = "|cffffd200" .. self:L("dont_include_desc", itemName),
 					get = function()
 						return self.db.profile.dontUse[itemName]
 					end,
@@ -303,7 +303,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT",3, 0);
-				GameTooltip:SetText(f.tooltipText .. "\n|cffffffff" .. self:L("clicktobuy") .. "\n" .. self:L("clicktoset",itemName));
+				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
+				GameTooltip:AddLine (self:L("clicktobuy"));
+				GameTooltip:AddLine (self:L("clicktoset",itemName));
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then
@@ -328,8 +330,8 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			args = {
 				slider = {
 					type = 'range',
-					name = itemName,
-					desc = self:L("specify_make", itemName),
+					name = "|cffffffff" .. itemName,
+					desc = "|cffffd200" .. self:L("specify_make", itemName),
 					min = 0,
 					max = 100,
 					step = 5,
@@ -345,15 +347,15 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				},
 				autobuy = {
 					type = "toggle",
-					name = self:L("autobuy"),
-					desc = self:L("autobuy_desc", itemName),
+					name = "|cffffffff" .. self:L("autobuy"),
+					desc = "|cffffd200" .. self:L("autobuy_desc", itemName),
 					get  = function() return self.db.profile.autoBuy[itemName] end,
 					set	= function(_,v) self.db.profile.autoBuy[itemName] = v end
 				},
 				exclude = {
 					type = "toggle",
-					name = self:L("dont_include", itemName),
-					desc = self:L("dont_include_desc", itemName),
+					name = "|cffffffff" .. self:L("dont_include", itemName),
+					desc = "|cffffd200" .. self:L("dont_include_desc", itemName),
 					get = function()
 						return self.db.profile.dontUse[itemName]
 					end,
@@ -388,7 +390,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:Hide();
 				GameTooltip:SetOwner(UIParent,"ANCHOR_NONE");
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT", 3, 0);
-				GameTooltip:SetText(f.tooltipText .. "\n|cffffffff" .. self:L("clicktobuy") .. "\n" .. self:L("clicktoset",itemName));
+				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
+				GameTooltip:AddLine (self:L("clicktobuy"));
+				GameTooltip:AddLine (self:L("clicktoset",itemName));
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then
