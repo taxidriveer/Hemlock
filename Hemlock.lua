@@ -523,8 +523,12 @@ function Hemlock:BAG_UPDATE(bag_id)
 						end	
 						f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. color .. GetItemCount(itemName))							
 					end
-					f:Enable()
-					f:GetNormalTexture():SetDesaturated(false)
+					if not toBuyTimer then
+						f:Enable()
+						f:GetNormalTexture():SetDesaturated(false)
+					else
+						self:ScheduleTimer((function() f:Enable(); f:GetNormalTexture():SetDesaturated(false); toBuyTimer = false; end), 0.5)
+					end
 				end)
 			end
 		end
@@ -628,7 +632,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 				if toBuy > 0 then
 					frame:Disable()
 					frame:GetNormalTexture():SetDesaturated(true)
-					self:ScheduleTimer(function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false) end, 2.5)
+					toBuyTimer = true
 					local buyResult = self:BuyVendorItem(reagentName, toBuy)
 					if not buyResult then
 						Hemlock:Print(self:L("unableToBuy", toBuy, reagentName))
