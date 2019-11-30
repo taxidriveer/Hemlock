@@ -70,7 +70,7 @@ function Hemlock:Register()
 			name = self:L("cmd_reset"),
 			desc = self:L("cmd_reset_desc"),
 		},
-		alternativeicon = {
+		icon = {
 			type = "execute",
 			func = function() 
 				if Hemlock.db.profile.options.alternativeWoundPoisonIcon == true then 
