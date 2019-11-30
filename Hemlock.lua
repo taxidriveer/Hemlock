@@ -99,6 +99,22 @@ function Hemlock:Register()
 			end,
 			name = self:L("option_chatMessages"),
 			desc = self:L("option_chatMessages_desc"),
+		},
+		smart = {
+			type = "execute",
+			func = function() 
+				if Hemlock.db.profile.options.smartButtonCount == true then 
+					Hemlock.db.profile.options.smartButtonCount = false
+					Hemlock:Print("Smart Button Count ON.")
+					self:InitFrames()
+				else
+					Hemlock.db.profile.options.smartButtonCount = true
+					Hemlock:Print("Smart Button Count OFF.")
+					self:InitFrames()
+				end
+			end,
+			name = self:L("option_smart_button_count"),
+			desc = self:L("option_smart_button_count_desc"),
 		}
 	}
 	}
