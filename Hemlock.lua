@@ -33,6 +33,9 @@ local safeIDs = {6947, 5173, 3775}
 --[[ These should be the rank 1 poison IDs - ie, without a rank suffix! ]]--
 local poisonIDs = {6947, 2892, 3775, 10918, 5237}
 
+--[[ These are all the Wound Poison item IDs, used for alternative icon ]]--
+local woundPoisonIDs = {10918,10920,10921,10922}
+
 --[[ Flash powder. Don't need anything else right now. ]]--
 local reagentIDs = {5140}
 
@@ -259,8 +262,15 @@ function Hemlock:PLAYER_LOGIN()
 end
 
 function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
-	local alternativeWoundPoisonIcon = self.db.profile.options.alternativeWoundPoisonIcon
+	local woundPoison = false
+	local alternativeWoundPoisonIcon = Hemlock.db.profile.options.alternativeWoundPoisonIcon
 	local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(itemID)
+
+	for k,v in ipairs(woundPoisonIDs) do
+		if itemID == v then
+			woundPoison = true
+		end
+	end
 
 	if not itemName then return nil end
 	if not self.db.profile.poisonRequirements[itemName] then
@@ -278,7 +288,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		f:SetPoint("TOP", lastFrame, "BOTTOM", 0, space)
 	end
 
-	if (alternativeWoundPoisonIcon and itemName == "Wound Poison") then
+	if (alternativeWoundPoisonIcon and woundPoison) then
 		f:SetNormalTexture(134197)
 	else
 		f:SetNormalTexture(invTexture)
