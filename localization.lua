@@ -25,7 +25,7 @@ HemlockLocalization = {
 		["cmd_reagent_description"]	= "Configure options for this reagent",
 		["cmd_reset"]			= "Reset",
 		["cmd_reset_desc"]		= "Reset Hemlock and show all buttons",
-		["cmd_reset_message"]	= "All poisons and reagents have been removed from the exclude list.",
+		["cmd_reset_message"]	= "All poisons and reagents have been removed from the exclusion list.",
 		["exclude_message"]		= "Type |cffffff78/Hemlock $S exclude|r to show the icon again.",
 	},
 	["frFR"] = {

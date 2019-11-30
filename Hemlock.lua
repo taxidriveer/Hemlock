@@ -2,7 +2,7 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1.0.4 $
+Revision: $Rev: 1.0.7 $
 Developed by: Antiarc
 Fan update by: Grome
 Documentation:
@@ -46,7 +46,8 @@ local defaults = {
 	poisonRequirements = {},
 	reagentRequirements = {},
 	autoBuy = {},
-	dontUse = {}
+	dontUse = {},
+	options = {}
   }
 }
 
@@ -222,6 +223,7 @@ function Hemlock:PLAYER_LOGIN()
 end
 
 function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
+	local alternativeWoundPoisonIcon = self.db.profile.options.alternativeWoundPoisonIcon
 	local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(itemID)
 
 	if not itemName then return nil end
@@ -239,7 +241,12 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	else
 		f:SetPoint("TOP", lastFrame, "BOTTOM", 0, space)
 	end
-	f:SetNormalTexture(invTexture)
+
+	if (alternativeWoundPoisonIcon and itemName == "Wound Poison") then
+		f:SetNormalTexture(134197)
+	else
+		f:SetNormalTexture(invTexture)
+	end
 	f:Show()
 	f.tooltipText = itemName
 	
