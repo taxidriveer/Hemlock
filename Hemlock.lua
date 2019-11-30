@@ -158,11 +158,6 @@ end
 
 function Hemlock:InitializeDB()
 
--- defaults.profile.options.smartTextCount = false,
--- defaults.profile.options.chatMessages = false,
--- defaults.profile.options.buyConfirmation = false,
--- defaults.profile.options.alternativeWoundPoisonIcon = false,
-
 for k,v in ipairs(poisonIDs) do
 	local item = Item:CreateFromItemID(v)
 	item:ContinueOnItemLoad(function()
@@ -178,6 +173,11 @@ for k,v in ipairs(reagentIDs) do
 		defaults.profile.reagentRequirements[itemName] = 0
 	end)
 end
+
+self.db.defaults.profile.options.smartTextCount = false
+defaults.profile.options.chatMessages = true
+self.db.defaults.profile.options.buyConfirmation = false
+self.db.defaults.profile.options.alternativeWoundPoisonIcon = true
 end
 
 function Hemlock:OnInitialize()

@@ -1,9 +1,4 @@
-﻿ -- Hemlock = {};
- -- Hemlock.frame = CreateFrame( "Frame", "Hemlockframe", UIParent );
- -- Hemlock.frame.name = "Hemlock";
- -- InterfaceOptions_AddCategory(Hemlock.frame);
-
-local addOnName = ...
+﻿local addOnName = ...
 
 -- main frame
 local frame = CreateFrame("Frame")
