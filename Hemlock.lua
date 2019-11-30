@@ -297,16 +297,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				},				
 			}
 		}
-		
-		-- Coloring
-		local poisonRequirement = self.db.profile.poisonRequirements[itemName]
-		local poisonInventory = self:GetPoisonsInInventory(itemName)
-		if (poisonRequirement > poisonInventory) then
-			color = "|cffff0055"
-		else
-			color = "|cff00C621"
-		end		
-		f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. color .. self:GetPoisonsInInventory(itemName))
+		Hemlock:ButtonText(f,itemName,frameType)
 		
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
@@ -386,14 +377,15 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 		}
 
 		-- Coloring
-		local reagentRequirements = self.db.profile.reagentRequirements[itemName]
-		local reagentInventory = GetItemCount(itemName)
-		if (reagentRequirements > reagentInventory) then
-			color = "|cffff0055"
-		else
-			color = "|cff00C621"
-		end	
-		f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. color .. GetItemCount(itemName))
+		-- local reagentRequirements = self.db.profile.reagentRequirements[itemName]
+		-- local reagentInventory = GetItemCount(itemName)
+		-- if (reagentRequirements > reagentInventory) then
+			-- color = "|cffff0055"
+		-- else
+			-- color = "|cff00C621"
+		-- end	
+		-- f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. color .. GetItemCount(itemName))
+		Hemlock:ButtonText(f,itemName,frameType)
 		
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
@@ -481,6 +473,46 @@ function Hemlock:PrintMessage(text,arg)
 	end
 end
 
+function Hemlock:ButtonText(f,itemName,frameType)
+	if frameType == 1 then
+		local poisonRequirement = self.db.profile.poisonRequirements[itemName]
+		local poisonInventory = self:GetPoisonsInInventory(itemName)
+		if (poisonRequirement > poisonInventory) then
+			color = "|cffff0055"
+		else
+			color = "|cff00C621"
+		end	
+		
+		if (Hemlock.db.profile.options.smartTextCount and poisonRequirement and poisonInventory) then
+			poisonSmartText = poisonRequirement - poisonInventory
+			if poisonSmartText < 1 then
+				poisonSmartText = 0
+			end
+			f:SetText(color .. poisonSmartText)
+		else
+			f:SetText(poisonRequirement .. "\n" .. color .. poisonInventory)
+		end
+	else
+		local reagentRequirements = self.db.profile.reagentRequirements[itemName]
+		local reagentInventory = GetItemCount(itemName)
+		if (reagentRequirements > reagentInventory) then
+			color = "|cffff0055"
+		else
+			color = "|cff00C621"
+		end
+	
+		if (Hemlock.db.profile.options.smartTextCount and reagentRequirements and reagentInventory) then
+			reagentSmartText = reagentRequirements - reagentInventory
+			if reagentSmartText < 1 then
+				reagentSmartText = 0
+			end
+			f:SetText(color .. reagentSmartText)
+		else
+			f:SetText(reagentRequirements .. "\n" .. color .. reagentInventory)
+		end
+	end
+end
+
 function Hemlock:MERCHANT_SHOW()
 	local localclass, trueclass = UnitClass("player")
 
@@ -532,23 +564,9 @@ function Hemlock:BAG_UPDATE(bag_id)
 				item:ContinueOnItemLoad(function()
 					local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
 					if f.item_type == 1 then
-						local poisonRequirement = self.db.profile.poisonRequirements[itemName]
-						local poisonInventory = self:GetPoisonsInInventory(itemName)
-						if (poisonRequirement > poisonInventory) then
-							color = "|cffff0055"
-						else
-							color = "|cff00C621"
-						end		
-						f:SetText(self.db.profile.poisonRequirements[itemName] .. "\n" .. color .. self:GetPoisonsInInventory(itemName))
-					else
-						local reagentRequirements = self.db.profile.reagentRequirements[itemName]
-						local reagentInventory = GetItemCount(itemName)
-						if (reagentRequirements > reagentInventory) then
-							color = "|cffff0055"
-						else
-							color = "|cff00C621"
-						end	
-						f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. color .. GetItemCount(itemName))							
+						Hemlock:ButtonText(f,itemName,f.item_type)
+					elseif f.item_type == 2 then
+						Hemlock:ButtonText(f,itemName,f.item_type)					
 					end
 					if not toBuyTimer then
 						f:Enable()
@@ -680,7 +698,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 						local slots = GetContainerNumSlots(v)
 						for j = 1, slots do
 								if not noMessage and not GetContainerItemLink(v, j) then
-									self:Print(self:L("pleasepress",  name))
+									Hemlock:PrintMessage(self:L("pleasepress",  name))
 									return
 								end
 						end
@@ -755,7 +773,6 @@ function Hemlock:ScanPoisons(step)
 			if skillType ~= "header" then
 				GameTooltip:SetTradeSkillItem(i)
 				local link = GetTradeSkillItemLink(i)
-				-- self:Print(link);
 				if link then
 					for n = 1,2 do
 						for j = 1, GetTradeSkillNumReagents(i) do
