@@ -37,7 +37,7 @@ frame:SetScript("OnShow", function(frame)
 	local smartTextCount = newCheckbox(
 		Hemlock:L("option_smart_text_count"),
 		Hemlock:L("option_smart_text_count_desc"),
-		function(self, value) Hemlock.db.profile.options.smartTextCount = value end)
+		function(self, value) Hemlock.db.profile.options.smartTextCount = value; Hemlock:InitFrames() end)
 	smartTextCount:SetChecked(Hemlock.db.profile.options.smartTextCount)
 	smartTextCount:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -2, -16)
 	
@@ -48,19 +48,12 @@ frame:SetScript("OnShow", function(frame)
 	chatMessages:SetChecked(Hemlock.db.profile.options.chatMessages)
 	chatMessages:SetPoint("TOPLEFT", smartTextCount, "BOTTOMLEFT", 0, -8)
 	
-	local buyConfirmation = newCheckbox(
-		Hemlock:L("option_buyConfirmation"),
-		Hemlock:L("option_buyConfirmation_desc"),
-		function(self, value) Hemlock.db.profile.options.buyConfirmation = value end)
-	buyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
-	buyConfirmation:SetPoint("TOPLEFT", chatMessages, "BOTTOMLEFT", 0, -8)
-	
 	local alternativeWoundPoisonIcon = newCheckbox(
 		Hemlock:L("option_alternativeWoundPoisonIcon"),
 		Hemlock:L("option_alternativeWoundPoisonIcon_desc"),
 		function(self, value) Hemlock.db.profile.options.alternativeWoundPoisonIcon = value; Hemlock:InitFrames() end)
 	alternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
-	alternativeWoundPoisonIcon:SetPoint("TOPLEFT", buyConfirmation, "BOTTOMLEFT", 0, -8)
+	alternativeWoundPoisonIcon:SetPoint("TOPLEFT", chatMessages, "BOTTOMLEFT", 0, -8)
 	
 	local reset = CreateFrame("Button", "HemlockResetButton", frame, "UIPanelButtonTemplate")
 	reset:SetText(Hemlock:L("option_reset_button"))

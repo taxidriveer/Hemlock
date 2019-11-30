@@ -66,6 +66,20 @@ function Hemlock:Register()
 			func = function() Hemlock:Reset() end,
 			name = self:L("cmd_reset"),
 			desc = self:L("cmd_reset_desc"),
+		},
+		alternativeicon = {
+			type = "execute",
+			func = function() 
+				if Hemlock.db.profile.options.alternativeWoundPoisonIcon == true then 
+					Hemlock.db.profile.options.alternativeWoundPoisonIcon = false
+					self:InitFrames()
+				else
+					Hemlock.db.profile.options.alternativeWoundPoisonIcon = true
+					self:InitFrames()
+				end
+			end,
+			name = self:L("option_alternativeWoundPoisonIcon"),
+			desc = self:L("option_alternativeWoundPoisonIcon_desc"),
 		}
 	}
 	}
