@@ -72,14 +72,30 @@ function Hemlock:Register()
 			func = function() 
 				if Hemlock.db.profile.options.alternativeWoundPoisonIcon == true then 
 					Hemlock.db.profile.options.alternativeWoundPoisonIcon = false
+					Hemlock:Print("Alternative Wound Poison icon OFF.")
 					self:InitFrames()
 				else
 					Hemlock.db.profile.options.alternativeWoundPoisonIcon = true
+					Hemlock:Print("Alternative Wound Poison icon ON.")
 					self:InitFrames()
 				end
 			end,
 			name = self:L("option_alternativeWoundPoisonIcon"),
 			desc = self:L("option_alternativeWoundPoisonIcon_desc"),
+		},
+		messages = {
+			type = "execute",
+			func = function() 
+				if Hemlock.db.profile.options.chatMessages == true then 
+					Hemlock.db.profile.options.chatMessages = false
+					Hemlock:Print("Chat messages disabled.")
+				else
+					Hemlock.db.profile.options.chatMessages = true
+					Hemlock:Print("Chat messages enabled.")
+				end
+			end,
+			name = self:L("option_chatMessages"),
+			desc = self:L("option_chatMessages_desc"),
 		}
 	}
 	}
@@ -188,10 +204,10 @@ for k,v in ipairs(reagentIDs) do
 	end)
 end
 
-self.db.defaults.profile.options.smartTextCount = false
+self.db.defaults.profile.options.smartButtonCount = false
 defaults.profile.options.chatMessages = true
 self.db.defaults.profile.options.buyConfirmation = false
-self.db.defaults.profile.options.alternativeWoundPoisonIcon = true
+self.db.defaults.profile.options.alternativeWoundPoisonIcon = false
 end
 
 function Hemlock:OnInitialize()
@@ -323,7 +339,11 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT",3, 0);
 				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktobuy"));
-				GameTooltip:AddLine (self:L("clicktoset",itemName));
+				if Hemlock.db.profile.options.smartButtonCount then
+					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.poisonRequirements[itemName]));
+				else
+					GameTooltip:AddLine (self:L("clicktoset",itemName));
+				end
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then
@@ -390,15 +410,6 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			}
 		}
 
-		-- Coloring
-		-- local reagentRequirements = self.db.profile.reagentRequirements[itemName]
-		-- local reagentInventory = GetItemCount(itemName)
-		-- if (reagentRequirements > reagentInventory) then
-			-- color = "|cffff0055"
-		-- else
-			-- color = "|cff00C621"
-		-- end	
-		-- f:SetText((self.db.profile.reagentRequirements[itemName] or 0) .. "\n" .. color .. GetItemCount(itemName))
 		Hemlock:ButtonText(f,itemName,frameType)
 		
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
@@ -411,7 +422,11 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT", 3, 0);
 				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktobuy"));
-				GameTooltip:AddLine (self:L("clicktoset",itemName));
+				if Hemlock.db.profile.options.smartButtonCount then
+					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.reagentRequirements[itemName]));
+				else
+					GameTooltip:AddLine (self:L("clicktoset",itemName));
+				end
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then
@@ -497,7 +512,7 @@ function Hemlock:ButtonText(f,itemName,frameType)
 			color = "|cff00C621"
 		end	
 		
-		if (Hemlock.db.profile.options.smartTextCount and poisonRequirement and poisonInventory) then
+		if (Hemlock.db.profile.options.smartButtonCount and poisonRequirement and poisonInventory) then
 			poisonSmartText = poisonRequirement - poisonInventory
 			if poisonSmartText < 1 then
 				poisonSmartText = 0
@@ -515,7 +530,7 @@ function Hemlock:ButtonText(f,itemName,frameType)
 			color = "|cff00C621"
 		end
 	
-		if (Hemlock.db.profile.options.smartTextCount and reagentRequirements and reagentInventory) then
+		if (Hemlock.db.profile.options.smartButtonCount and reagentRequirements and reagentInventory) then
 			reagentSmartText = reagentRequirements - reagentInventory
 			if reagentSmartText < 1 then
 				reagentSmartText = 0
