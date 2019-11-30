@@ -27,9 +27,9 @@ frame:SetScript("OnShow", function(frame)
 			local tick = self:GetChecked()
 			onClick(self, tick and true or false)
 			if tick then
-				PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+				PlaySound(856)
 			else
-				PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
+				PlaySound(857)
 			end
 		end)
 		check.label = _G[check:GetName() .. "Text"]
@@ -67,17 +67,17 @@ frame:SetScript("OnShow", function(frame)
 	alternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
 	alternativeWoundPoisonIcon:SetPoint("TOPLEFT", buyConfirmation, "BOTTOMLEFT", 0, -8)
 	
-	local clear = CreateFrame("Button", "BugSackSaveButton", frame, "UIPanelButtonTemplate")
-	clear:SetText("Reset Hemlock Buttons")
-	clear:SetWidth(177)
-	clear:SetHeight(24)
-	clear:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 17, -15)
-	clear:SetScript("OnClick", function()
+	local reset = CreateFrame("Button", "HemlockResetButton", frame, "UIPanelButtonTemplate")
+	reset:SetText("Reset Hemlock Buttons")
+	reset:SetWidth(177)
+	reset:SetHeight(24)
+	reset:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 17, -15)
+	reset:SetScript("OnClick", function()
 		Hemlock:Reset();
 		PlaySound(856);
 	end)
-	clear.tooltipText = "Reset"
-	clear.newbieText = "Hemlock will reset all hidden buttons"
+	reset.tooltipText = "Reset"
+	reset.newbieText = "Hemlock will reset all hidden buttons"
 	
 	frame:SetScript("OnShow", nil)
 end)
