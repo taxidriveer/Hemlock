@@ -1,6 +1,6 @@
 <Ui>
 	<Script file="localization.lua" />
-	<Script file="Options.lua" />
+	<Script file="options.lua" />
 	<Script file="Hemlock.lua" />
 	<Script file="Libs\LibStub\LibStub.lua"/>
 	<Include file="Libs\AceAddon-3.0\AceAddon-3.0.xml"/>

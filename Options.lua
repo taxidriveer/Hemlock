@@ -40,35 +40,35 @@ frame:SetScript("OnShow", function(frame)
 	end
 
 	local smartTextCount = newCheckbox(
-		"Smart Text Count",
-		"Hemlock buttons will only display the amount of needed poisons or reagents",
+		Hemlock:L("option_smart_text_count"),
+		Hemlock:L("option_smart_text_count_desc"),
 		function(self, value) Hemlock.db.profile.options.smartTextCount = value end)
 	smartTextCount:SetChecked(Hemlock.db.profile.options.smartTextCount)
 	smartTextCount:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -2, -16)
 	
 	local chatMessages = newCheckbox(
-		"Print Hemlock Output",
-		"Hemlock will print help messages in the chat",
+		Hemlock:L("option_chatMessages"),
+		Hemlock:L("option_chatMessages_desc"),
 		function(self, value) Hemlock.db.profile.options.chatMessages = value end)
 	chatMessages:SetChecked(Hemlock.db.profile.options.chatMessages)
 	chatMessages:SetPoint("TOPLEFT", smartTextCount, "BOTTOMLEFT", 0, -8)
 	
 	local buyConfirmation = newCheckbox(
-		"Confirmation Popup",
-		"Hemlock will display the amount of reagents and the total price before buying poisons or reagents",
+		Hemlock:L("option_buyConfirmation"),
+		Hemlock:L("option_buyConfirmation_desc"),
 		function(self, value) Hemlock.db.profile.options.buyConfirmation = value end)
 	buyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
 	buyConfirmation:SetPoint("TOPLEFT", chatMessages, "BOTTOMLEFT", 0, -8)
 	
 	local alternativeWoundPoisonIcon = newCheckbox(
-		"Alternative Wound Poison Icon",
-		"Hemlock will display an alternavite Wound Poison Icon",
+		Hemlock:L("option_alternativeWoundPoisonIcon"),
+		Hemlock:L("option_alternativeWoundPoisonIcon_desc"),
 		function(self, value) Hemlock.db.profile.options.alternativeWoundPoisonIcon = value; Hemlock:InitFrames() end)
 	alternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
 	alternativeWoundPoisonIcon:SetPoint("TOPLEFT", buyConfirmation, "BOTTOMLEFT", 0, -8)
 	
 	local reset = CreateFrame("Button", "HemlockResetButton", frame, "UIPanelButtonTemplate")
-	reset:SetText("Reset Hemlock Buttons")
+	reset:SetText(Hemlock:L("option_reset_button"))
 	reset:SetWidth(177)
 	reset:SetHeight(24)
 	reset:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 17, -15)
@@ -76,8 +76,8 @@ frame:SetScript("OnShow", function(frame)
 		Hemlock:Reset();
 		PlaySound(856);
 	end)
-	reset.tooltipText = "Reset"
-	reset.newbieText = "Hemlock will reset all hidden buttons"
+	reset.tooltipText = Hemlock:L("option_reset_tooltip_title")
+	reset.newbieText = Hemlock:L("option_reset_tooltip_desc")
 	
 	frame:SetScript("OnShow", nil)
 end)
