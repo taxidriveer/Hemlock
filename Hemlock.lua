@@ -157,6 +157,12 @@ function Hemlock:Register()
 end
 
 function Hemlock:InitializeDB()
+
+-- defaults.profile.options.smartTextCount = false,
+-- defaults.profile.options.chatMessages = false,
+-- defaults.profile.options.buyConfirmation = false,
+-- defaults.profile.options.alternativeWoundPoisonIcon = false,
+
 for k,v in ipairs(poisonIDs) do
 	local item = Item:CreateFromItemID(v)
 	item:ContinueOnItemLoad(function()
@@ -284,7 +290,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 						commanddItemName = itemName:gsub("%s+", "")
 						local buttonStatus = self.db.profile.dontUse[itemName]
 						if (buttonStatus) then
-							Hemlock:Print(self:L("exclude_message", commanddItemName))
+							Hemlock:PrintMessage(self:L("exclude_message", commanddItemName))
 						end
 						self:InitFrames()
 					end
@@ -371,7 +377,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 						commanddItemName = itemName:gsub("%s+", "")
 						local buttonStatus = self.db.profile.dontUse[itemName]
 						if (buttonStatus) then
-							Hemlock:Print(self:L("exclude_message", commanddItemName))
+							Hemlock:PrintMessage(self:L("exclude_message", commanddItemName))
 						end
 						self:InitFrames()
 					end
@@ -407,7 +413,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				if toBuy > 0 then
 					Hemlock:BuyVendorItem(itemName, toBuy)
 				else
-					Hemlock:Print(Hemlock:L("skippingReagent", itemName, Hemlock.db.profile.reagentRequirements[itemName], GetItemCount(itemName)))
+					Hemlock:PrintMessage(Hemlock:L("skippingReagent", itemName, Hemlock.db.profile.reagentRequirements[itemName], GetItemCount(itemName)))
 					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 				end
 			end
@@ -463,6 +469,16 @@ function Hemlock:Reset()
 	self.db.profile.dontUse = {}
 	self:InitFrames()
 	self:Print(self:L("cmd_reset_message"))
+end
+
+function Hemlock:PrintMessage(text,arg)
+	if (Hemlock.db.profile.options.chatMessages) then
+		if arg then
+			Hemlock:Print(text, arg)
+		else
+			Hemlock:Print(text)
+		end
+	end
 end
 
 function Hemlock:MERCHANT_SHOW()
@@ -646,7 +662,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 					toBuyTimer = true
 					local buyResult = self:BuyVendorItem(reagentName, toBuy)
 					if not buyResult then
-						Hemlock:Print(self:L("unableToBuy", toBuy, reagentName))
+						Hemlock:PrintMessage(self:L("unableToBuy", toBuy, reagentName))
 						noMessage = true
 					else
 						self.claimedReagents[skillIndex][reagentName] = need
@@ -679,7 +695,7 @@ function Hemlock:GetNeededPoisons(name, frame)
 				DoTradeSkill(skillIndex, toMake)
 				self.claimedReagents[skillIndex] = nil
 		else
-			Hemlock:Print(self:L("skipping", name, amt, count))
+			Hemlock:PrintMessage(self:L("skipping", name, amt, count))
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 		end
 	end
