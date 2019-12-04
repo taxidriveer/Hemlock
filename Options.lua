@@ -55,11 +55,18 @@ frame:SetScript("OnShow", function(frame)
 	alternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
 	alternativeWoundPoisonIcon:SetPoint("TOPLEFT", chatMessages, "BOTTOMLEFT", 0, -8)
 	
+	local buyConfirmation = newCheckbox(
+		Hemlock:L("option_buyConfirmation"),
+		Hemlock:L("option_buyConfirmation_desc"),
+		function(self, value) Hemlock.db.profile.options.buyConfirmation = value; Hemlock:InitFrames() end)
+	buyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
+	buyConfirmation:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 0, -8)
+	
 	local reset = CreateFrame("Button", "HemlockResetButton", frame, "UIPanelButtonTemplate")
 	reset:SetText(Hemlock:L("option_reset_button"))
 	reset:SetWidth(177)
 	reset:SetHeight(24)
-	reset:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 17, -15)
+	reset:SetPoint("TOPLEFT", buyConfirmation, "BOTTOMLEFT", 17, -15)
 	reset:SetScript("OnClick", function()
 		Hemlock:Reset();
 		PlaySound(856);

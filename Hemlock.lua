@@ -105,16 +105,32 @@ function Hemlock:Register()
 			func = function() 
 				if Hemlock.db.profile.options.smartButtonCount == true then 
 					Hemlock.db.profile.options.smartButtonCount = false
-					Hemlock:Print("Smart Button Count ON.")
+					Hemlock:Print("Smart Button Count OFF.")
 					self:InitFrames()
 				else
 					Hemlock.db.profile.options.smartButtonCount = true
-					Hemlock:Print("Smart Button Count OFF.")
+					Hemlock:Print("Smart Button Count ON.")
 					self:InitFrames()
 				end
 			end,
 			name = self:L("option_smart_button_count"),
 			desc = self:L("option_smart_button_count_desc"),
+		},
+		confirmation = {
+			type = "execute",
+			func = function() 
+				if Hemlock.db.profile.options.buyConfirmation == true then 
+					Hemlock.db.profile.options.buyConfirmation = false
+					Hemlock:Print("Buy confirmation OFF.")
+					self:InitFrames()
+				else
+					Hemlock.db.profile.options.buyConfirmation = true
+					Hemlock:Print("Buy confirmation ON.")
+					self:InitFrames()
+				end
+			end,
+			name = self:L("option_buyConfirmation"),
+			desc = self:L("option_buyConfirmation_desc"),
 		}
 	}
 	}
@@ -225,7 +241,7 @@ end
 
 self.db.defaults.profile.options.smartButtonCount = false
 defaults.profile.options.chatMessages = true
-self.db.defaults.profile.options.buyConfirmation = false
+self.db.defaults.profile.options.buyConfirmation = true
 self.db.defaults.profile.options.alternativeWoundPoisonIcon = false
 end
 
@@ -233,9 +249,9 @@ function Hemlock:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("HemlockDB", defaults, true)
 	self.db = LibStub("AceDB-3.0"):New("HemlockDBPC", defaults, true)
 	self:InitializeDB()
-	C_Timer.After(0.2, function() -- Delay to cache items
+	-- C_Timer.After(0.2, function() -- Delay to cache items
 		self:Register()
-	end)
+	-- end)
 	-- self:Print("Hemlock is initializing")
 	self.enabled = false
 	self:RegisterEvent("MERCHANT_SHOW");
@@ -458,6 +474,9 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			if (button == "LeftButton") then
 				local toBuy = Hemlock.db.profile.reagentRequirements[itemName] - GetItemCount(itemName)
 				if toBuy > 0 then
+					f:Disable()
+					f:GetNormalTexture():SetDesaturated(true)
+					toBuyTimer = true
 					Hemlock:BuyVendorItem(itemName, toBuy)
 				else
 					Hemlock:PrintMessage(Hemlock:L("skippingReagent", itemName, Hemlock.db.profile.reagentRequirements[itemName], GetItemCount(itemName)))
@@ -548,8 +567,8 @@ function Hemlock:ButtonText(f,itemName,frameType)
 			f:SetText(poisonRequirement .. "\n" .. color .. poisonInventory)
 		end
 	else
-		local reagentRequirements = self.db.profile.reagentRequirements[itemName]
-		local reagentInventory = GetItemCount(itemName)
+		local reagentRequirements = self.db.profile.reagentRequirements[itemName] or 0
+		local reagentInventory = GetItemCount(itemName) or 0
 		if (reagentRequirements > reagentInventory) then
 			color = "|cffff0055"
 		else
@@ -565,6 +584,44 @@ function Hemlock:ButtonText(f,itemName,frameType)
 		else
 			f:SetText(reagentRequirements .. "\n" .. color .. reagentInventory)
 		end
+	end
+end
+
+function Hemlock:ConfirmationPopup(popupText,frame,pName)
+	StaticPopupDialogs["HEMLOCK_CONFIRMATION"] = {
+		text = "|cff55ff55Hemlock|r\n" .. popupText,
+		button1 = "Buy",
+		button2 = "Cancel",
+		OnAccept = function()
+			Hemlock:ConfirmationPopupAccepted(frame,pName)
+		end,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		preferredIndex = 3,
+	}
+	StaticPopup_Show ("HEMLOCK_CONFIRMATION")
+end
+
+function Hemlock:ConfirmationPopupAccepted(frame,pName)
+	frame:Disable()
+	frame:GetNormalTexture():SetDesaturated(true)
+	toBuyTimer = true
+
+	for rName, rToBuy in pairs(buyTable) do
+		if rName then
+			local buyResult = self:BuyVendorItem(rName, rToBuy)
+			if not buyResult then
+				Hemlock:PrintMessage(self:L("unableToBuy", rToBuy, pName))
+				noMessage = true
+			else
+				noMessage = false
+			end
+		end
+	end
+	if not noMessage then
+		Hemlock:PrintMessage(self:L("pleasepress",  pName))
+		return
 	end
 end
 
@@ -712,7 +769,10 @@ function Hemlock:GetNeededPoisons(name, frame)
 	local v = name
 	local amt = self.db.profile.poisonRequirements[name]
 	local poison, skillIndex = self:GetMaxPoisonRank(v)
-	local noMessage = false
+	local buyConfirmation = Hemlock.db.profile.options.buyConfirmation
+	local popupText = ""
+	buyTable = {}
+	noMessage = false
 	if not self.claimedReagents[skillIndex] then self.claimedReagents[skillIndex] = {} end
 
 	if poison then
@@ -730,46 +790,38 @@ function Hemlock:GetNeededPoisons(name, frame)
 				end
 				toBuy = toBuy - playerReagentCount
 				if toBuy > 0 then
-					frame:Disable()
-					frame:GetNormalTexture():SetDesaturated(true)
-					toBuyTimer = true
-					local buyResult = self:BuyVendorItem(reagentName, toBuy)
-					if not buyResult then
-						Hemlock:PrintMessage(self:L("unableToBuy", toBuy, reagentName))
-						noMessage = true
-					else
-						self.claimedReagents[skillIndex][reagentName] = need
-					end
+					buyTable[reagentName] = toBuy
+					noMessage = true
 				else
 					self.claimedReagents[skillIndex][reagentName] = need
 				end
 			end
-			for i = 1, GetTradeSkillNumReagents(skillIndex) do
-				local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(skillIndex, i)
-				local toBuy = (reagentCount * toMake) - playerReagentCount
-				if toBuy > 0 then
-					local bags = {0,1,2,3,4}
-					for k,v in ipairs(bags) do
-						local slots = GetContainerNumSlots(v)
-						for j = 1, slots do
-								if not noMessage and not GetContainerItemLink(v, j) then
-									Hemlock:PrintMessage(self:L("pleasepress",  name))
-									return
-								end
-						end
-					end
-					break
+			
+			if not noMessage then
+				for i = 1, GetTradeSkillNumReagents(skillIndex) do
+					local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(skillIndex, i)
 				end
-			end
-
-			for i = 1, GetTradeSkillNumReagents(skillIndex) do
-				local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(skillIndex, i)
-			end
 				DoTradeSkill(skillIndex, toMake)
 				self.claimedReagents[skillIndex] = nil
+				return
+			end
+
 		else
 			Hemlock:PrintMessage(self:L("skipping", name, amt, count))
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+		end
+
+	end
+	for rName, rToBuy in pairs(buyTable) do
+		if rName then
+			popupText = popupText .. "\n" .. rName .. "|cffffd200 x " .. rToBuy .. "|r"
+		end
+	end
+	if popupText ~= "" then
+		if buyConfirmation then
+			Hemlock:ConfirmationPopup(popupText,frame,name)
+		else
+			Hemlock:ConfirmationPopupAccepted(frame,name)
 		end
 	end
 end
