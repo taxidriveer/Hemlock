@@ -389,7 +389,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktobuy"));
 				if Hemlock.db.profile.options.smartPoisonCount then
-					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.poisonRequirements[itemName]));
+					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.poisonRequirements[itemName],self:GetPoisonsInInventory(itemName)));
 				else
 					GameTooltip:AddLine (self:L("clicktoset",itemName));
 				end
@@ -472,7 +472,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktobuy"));
 				if Hemlock.db.profile.options.smartPoisonCount then
-					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.reagentRequirements[itemName]));
+					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.reagentRequirements[itemName],GetItemCount(itemName)));
 				else
 					GameTooltip:AddLine (self:L("clicktoset",itemName));
 				end
@@ -707,16 +707,18 @@ function Hemlock:BAG_UPDATE(bag_id)
 end
 
 function Hemlock:GetPoisonsInInventory(name)
-	local rankStrings = {"XX", "XIX", "XVIII", "XVII", "XVI", "XV", "XIV", "XIII", "XII", "XI", "X", "IX", "VIII", "VII", "VI", "V", "IV", "III", "II", "I"}
+	local totalCount = 0
+	local rankStrings = {" X", " IX", " VIII", " VII", " VI", " V", " IV", " III", " II", "I", ""}
 	for idx, str in ipairs(rankStrings) do
-		if GetItemCount(name .. " " .. str) > 0 then
-			return GetItemCount(name .. " " .. str)
-		end
+		itemName = name .. str
+		count = GetItemCount(itemName)  or 0
+		totalCount = totalCount + count
 	end
-	if GetItemCount(name) > 0 then
-		return GetItemCount(name)
+	if totalCount > 0 then
+		return totalCount
+	else
+		return 0
 	end
-	return 0
 end
 
 function Hemlock:GetMaxPoisonRank(poisonName)
@@ -790,7 +792,8 @@ function Hemlock:GetNeededPoisons(name, frame)
 	if not self.claimedReagents[skillIndex] then self.claimedReagents[skillIndex] = {} end
 
 	if poison then
-		local count = GetItemCount(GetTradeSkillItemLink(skillIndex))
+		-- local count = GetItemCount(GetTradeSkillItemLink(skillIndex))
+		local count = Hemlock:GetPoisonsInInventory(name)
 		local toMake = math.ceil((amt - count) / GetTradeSkillNumMade(skillIndex))
 		if toMake > 0 then
 			for i = 1, GetTradeSkillNumReagents(skillIndex) do
