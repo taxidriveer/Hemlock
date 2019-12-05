@@ -34,19 +34,19 @@ frame:SetScript("OnShow", function(frame)
 		return check
 	end
 
-	local smartButtonCount = newCheckbox(
-		Hemlock:L("option_smart_button_count"),
-		Hemlock:L("option_smart_button_count_desc"),
-		function(self, value) Hemlock.db.profile.options.smartButtonCount = value; Hemlock:InitFrames() end)
-	smartButtonCount:SetChecked(Hemlock.db.profile.options.smartButtonCount)
-	smartButtonCount:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -2, -16)
+	local smartPoisonCount = newCheckbox(
+		Hemlock:L("option_poison_button_count"),
+		Hemlock:L("option_poison_button_count_desc"),
+		function(self, value) Hemlock.db.profile.options.smartPoisonCount = value; Hemlock:InitFrames() end)
+	smartPoisonCount:SetChecked(Hemlock.db.profile.options.smartPoisonCount)
+	smartPoisonCount:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -2, -16)
 	
 	local chatMessages = newCheckbox(
 		Hemlock:L("option_chatMessages"),
 		Hemlock:L("option_chatMessages_desc"),
 		function(self, value) Hemlock.db.profile.options.chatMessages = value end)
 	chatMessages:SetChecked(Hemlock.db.profile.options.chatMessages)
-	chatMessages:SetPoint("TOPLEFT", smartButtonCount, "BOTTOMLEFT", 0, -8)
+	chatMessages:SetPoint("TOPLEFT", smartPoisonCount, "BOTTOMLEFT", 0, -8)
 	
 	local alternativeWoundPoisonIcon = newCheckbox(
 		Hemlock:L("option_alternativeWoundPoisonIcon"),

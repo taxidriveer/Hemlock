@@ -103,18 +103,18 @@ function Hemlock:Register()
 		smart = {
 			type = "execute",
 			func = function() 
-				if Hemlock.db.profile.options.smartButtonCount == true then 
-					Hemlock.db.profile.options.smartButtonCount = false
+				if Hemlock.db.profile.options.smartPoisonCount == true then 
+					Hemlock.db.profile.options.smartPoisonCount = false
 					Hemlock:Print("Smart Button Count OFF.")
 					self:InitFrames()
 				else
-					Hemlock.db.profile.options.smartButtonCount = true
+					Hemlock.db.profile.options.smartPoisonCount = true
 					Hemlock:Print("Smart Button Count ON.")
 					self:InitFrames()
 				end
 			end,
-			name = self:L("option_smart_button_count"),
-			desc = self:L("option_smart_button_count_desc"),
+			name = self:L("option_poison_button_count"),
+			desc = self:L("option_poison_button_count_desc"),
 		},
 		confirmation = {
 			type = "execute",
@@ -239,7 +239,7 @@ for k,v in ipairs(reagentIDs) do
 	end)
 end
 
-self.db.defaults.profile.options.smartButtonCount = false
+self.db.defaults.profile.options.smartPoisonCount = false
 defaults.profile.options.chatMessages = true
 self.db.defaults.profile.options.buyConfirmation = true
 self.db.defaults.profile.options.alternativeWoundPoisonIcon = false
@@ -255,6 +255,7 @@ function Hemlock:OnInitialize()
 	-- self:Print("Hemlock is initializing")
 	self.enabled = false
 	self:RegisterEvent("MERCHANT_SHOW");
+	self:RegisterEvent("MERCHANT_CLOSED");
 	self:RegisterEvent("BAG_UPDATE");
 	self:RegisterEvent("PLAYER_LOGIN");
 	self.frameIndex = 0
@@ -290,6 +291,12 @@ function Hemlock:PLAYER_LOGIN()
 				StaticPopup_Show("HEMLOCK_NOTIFY_NEED_SCAN")
 			end
 		end)	
+	end
+	
+	-- Backward compatibility
+	if Hemlock.db.profile.options.smartButtonCount == true then 
+		Hemlock.db.profile.options.smartPoisonCount = true
+		Hemlock.db.profile.options.smartButtonCount = nil
 	end
 end
 
@@ -381,7 +388,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT",3, 0);
 				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktobuy"));
-				if Hemlock.db.profile.options.smartButtonCount then
+				if Hemlock.db.profile.options.smartPoisonCount then
 					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.poisonRequirements[itemName]));
 				else
 					GameTooltip:AddLine (self:L("clicktoset",itemName));
@@ -464,7 +471,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				GameTooltip:SetPoint("LEFT", "HemlockPoisonButton" .. itemID, "RIGHT", 3, 0);
 				GameTooltip:SetText(f.tooltipText, 1, 1, 1);
 				GameTooltip:AddLine (self:L("clicktobuy"));
-				if Hemlock.db.profile.options.smartButtonCount then
+				if Hemlock.db.profile.options.smartPoisonCount then
 					GameTooltip:AddLine (self:L("clicktosetsmart",itemName,self.db.profile.reagentRequirements[itemName]));
 				else
 					GameTooltip:AddLine (self:L("clicktoset",itemName));
@@ -557,7 +564,7 @@ function Hemlock:ButtonText(f,itemName,frameType)
 			color = "|cff00C621"
 		end	
 		
-		if (Hemlock.db.profile.options.smartButtonCount and poisonRequirement and poisonInventory) then
+		if (Hemlock.db.profile.options.smartPoisonCount and poisonRequirement and poisonInventory) then
 			poisonSmartText = poisonRequirement - poisonInventory
 			if poisonSmartText < 1 then
 				poisonSmartText = 0
@@ -575,7 +582,7 @@ function Hemlock:ButtonText(f,itemName,frameType)
 			color = "|cff00C621"
 		end
 	
-		if (Hemlock.db.profile.options.smartButtonCount and reagentRequirements and reagentInventory) then
+		if (Hemlock.db.profile.options.smartPoisonCount and reagentRequirements and reagentInventory) then
 			reagentSmartText = reagentRequirements - reagentInventory
 			if reagentSmartText < 1 then
 				reagentSmartText = 0
@@ -590,8 +597,8 @@ end
 function Hemlock:ConfirmationPopup(popupText,frame,pName)
 	StaticPopupDialogs["HEMLOCK_CONFIRMATION"] = {
 		text = "|cff55ff55Hemlock|r\n" .. popupText,
-		button1 = "Buy",
-		button2 = "Cancel",
+		button1 = self:L("popup_buy"),
+		button2 = self:L("popup_cancel"),
 		OnAccept = function()
 			Hemlock:ConfirmationPopupAccepted(frame,pName)
 		end,
@@ -665,6 +672,13 @@ function Hemlock:MERCHANT_SHOW()
 	-- We are not supposed to see this anymore since we are using ContinueOnItemLoad
 	if haveNils then
 		self:Print(self:L("cached_data_warning"))
+	end
+end
+
+function Hemlock:MERCHANT_CLOSED()
+	local popup_confirmation = StaticPopupDialogs["HEMLOCK_CONFIRMATION"]
+	if popup_confirmation then
+		StaticPopup_Hide("HEMLOCK_CONFIRMATION");
 	end
 end
 
