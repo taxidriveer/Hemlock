@@ -2,11 +2,11 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1.0.7 $
+Revision: $Rev: 1.0.9 $
 Developed by: Antiarc
-Fan update by: Grome
+Currently maintained by: Grome
 Documentation:
-SVN: http://svn.wowace.com/wowace/trunk/Hemlock
+Github: https://github.com/taxidriveer/Hemlock
 Description: Minimalistic addon to automate poison buying and creation
 Dependencies: AceLibrary, Dewdrop-2.0
 ]]--
@@ -136,6 +136,27 @@ function Hemlock:Register()
 			end,
 			name = self:L("option_smartPoisonCount"),
 			desc = self:L("option_smartPoisonCount_desc"),
+		},
+		ranks = {
+			type = "execute",
+			func = function() 
+				if Hemlock.db.profile.options.ignoreLowerRankPoisons == true then 
+					local optionName = self:L("option_ignoreLowerRankPoisons")
+					local optionState = self:L("option_StateOff")
+					Hemlock.db.profile.options.ignoreLowerRankPoisons = false
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+					self:InitFrames()
+				else
+					local optionName = self:L("option_ignoreLowerRankPoisons")
+					local optionState = self:L("option_StateOn")
+					Hemlock.db.profile.options.ignoreLowerRankPoisons = true
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+					self:InitFrames()
+				end
+				Hemlock:RefreshOptions()
+			end,
+			name = self:L("option_ignoreLowerRankPoisons"),
+			desc = self:L("option_ignoreLowerRankPoisons_desc"),
 		},
 		confirmation = {
 			type = "execute",
@@ -269,6 +290,7 @@ self.db.defaults.profile.options.smartPoisonCount = false
 defaults.profile.options.chatMessages = true
 self.db.defaults.profile.options.buyConfirmation = true
 self.db.defaults.profile.options.alternativeWoundPoisonIcon = false
+self.db.defaults.profile.options.ignoreLowerRankPoisons = false
 end
 
 function Hemlock:OnInitialize()
@@ -682,12 +704,14 @@ function Hemlock:ConfirmationPopupCheckbox()
 end
 
 function Hemlock:RefreshOptions()
-	-- Verify if the options are loaded
+	PlaySound(856)
+	-- Verify if the options are loaded and update them
 	if HemlockCheckBoxSmartPoisonCount then
 		HemlockCheckBoxSmartPoisonCount:SetChecked(Hemlock.db.profile.options.smartPoisonCount)
 		HemlockCheckBoxChatMessages:SetChecked(Hemlock.db.profile.options.chatMessages)
 		HemlockCheckBoxAlternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
 		HemlockCheckBoxBuyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
+		HemlockCheckBoxIgnoreLowerRankPoisons:SetChecked(Hemlock.db.profile.options.ignoreLowerRankPoisons)
 	end
 end
 function Hemlock:MERCHANT_SHOW()
@@ -766,18 +790,32 @@ function Hemlock:BAG_UPDATE(bag_id)
 end
 
 function Hemlock:GetPoisonsInInventory(name)
-	local totalCount = 0
-	local rankStrings = {" X", " IX", " VIII", " VII", " VI", " V", " IV", " III", " II", "I", ""}
-	for idx, str in ipairs(rankStrings) do
-		itemName = name .. str
-		count = GetItemCount(itemName)  or 0
-		totalCount = totalCount + count
-	end
-	if totalCount > 0 then
-		return totalCount
+	ignoreLowerRanks = Hemlock.db.profile.options.ignoreLowerRankPoisons
+	if not ignoreLowerRanks then
+		local totalCount = 0
+		local rankStrings = {" X", " IX", " VIII", " VII", " VI", " V", " IV", " III", " II", "I", ""}
+		for idx, str in ipairs(rankStrings) do
+			itemName = name .. str
+			count = GetItemCount(itemName)  or 0
+			totalCount = totalCount + count
+		end
+		if totalCount > 0 then
+			return totalCount
+		else
+			return 0
+		end
 	else
+		local rankStrings = {"XX", "XIX", "XVIII", "XVII", "XVI", "XV", "XIV", "XIII", "XII", "XI", "X", "IX", "VIII", "VII", "VI", "V", "IV", "III", "II", "I"}
+		for idx, str in ipairs(rankStrings) do
+			if GetItemCount(name .. " " .. str) > 0 then
+				return GetItemCount(name .. " " .. str)
+			end
+		end
+		if GetItemCount(name) > 0 then
+			return GetItemCount(name)
+		end
 		return 0
-	end
+	end	
 end
 
 function Hemlock:GetMaxPoisonRank(poisonName)

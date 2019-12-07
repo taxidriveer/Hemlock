@@ -66,11 +66,19 @@ frame:SetScript("OnShow", function(frame)
 	buyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
 	buyConfirmation:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 0, -8)
 	
+	ignoreLowerRankPoisons = newCheckbox(
+		"IgnoreLowerRankPoisons",
+		Hemlock:L("option_ignoreLowerRankPoisons"),
+		Hemlock:L("option_ignoreLowerRankPoisons_desc"),
+		function(self, value) Hemlock.db.profile.options.ignoreLowerRankPoisons = value; Hemlock:InitFrames() end)
+	ignoreLowerRankPoisons:SetChecked(Hemlock.db.profile.options.ignoreLowerRankPoisons)
+	ignoreLowerRankPoisons:SetPoint("TOPLEFT", buyConfirmation, "BOTTOMLEFT", 0, -8)
+	
 	local reset = CreateFrame("Button", "HemlockResetButton", frame, "UIPanelButtonTemplate")
 	reset:SetText(Hemlock:L("option_reset_button"))
 	reset:SetWidth(177)
 	reset:SetHeight(24)
-	reset:SetPoint("TOPLEFT", buyConfirmation, "BOTTOMLEFT", 17, -15)
+	reset:SetPoint("TOPLEFT", ignoreLowerRankPoisons, "BOTTOMLEFT", 17, -15)
 	reset:SetScript("OnClick", function()
 		Hemlock:Reset();
 		PlaySound(856);
