@@ -253,6 +253,8 @@ function Hemlock:OnInitialize()
 		self:Register()
 	-- end)
 	-- self:Print("Hemlock is initializing")
+	self:ConfirmationPopupCheckbox()
+	confirmationCheckBoxFrame:Hide()
 	self.enabled = false
 	self:RegisterEvent("MERCHANT_SHOW");
 	self:RegisterEvent("MERCHANT_CLOSED");
@@ -608,6 +610,10 @@ function Hemlock:ConfirmationPopup(popupText,frame,pName)
 		preferredIndex = 3,
 	}
 	StaticPopup_Show ("HEMLOCK_CONFIRMATION")
+	local checkboxState = Hemlock.db.profile.options.buyConfirmation
+	if checkboxState then checkboxState = false else checkboxState = true end
+	confirmationCheckBox:SetChecked(checkboxState);
+	confirmationCheckBoxFrame:Show()
 end
 
 function Hemlock:ConfirmationPopupAccepted(frame,pName)
@@ -630,6 +636,21 @@ function Hemlock:ConfirmationPopupAccepted(frame,pName)
 		Hemlock:PrintMessage(self:L("pleasepress",  pName))
 		return
 	end
+end
+
+function Hemlock:ConfirmationPopupCheckbox()
+	confirmationCheckBox = CreateFrame("CheckButton", "confirmationCheckBoxFrame", StaticPopup3, "ChatConfigCheckButtonTemplate");
+	confirmationCheckBox:SetPoint("TOPRIGHT", -8, -8);
+	confirmationCheckBoxFrameText:SetText("Hide");
+	confirmationCheckBoxFrameText:SetFont("Fonts\\FRIZQT__.TTF", 9)
+	confirmationCheckBoxFrameText:SetPoint("LEFT", -23, 0);
+	confirmationCheckBox.tooltip = "Tick this box to hide the popup.\nYou can re-enable it in the options menu.";
+	confirmationCheckBox:SetScript("OnClick", function(self)
+		local value = self:GetChecked()
+		if value then value = false else value = true end
+		Hemlock.db.profile.options.buyConfirmation = value
+		PlaySound(856)
+	end);
 end
 
 function Hemlock:MERCHANT_SHOW()
@@ -678,6 +699,7 @@ end
 function Hemlock:MERCHANT_CLOSED()
 	local popup_confirmation = StaticPopupDialogs["HEMLOCK_CONFIRMATION"]
 	if popup_confirmation then
+		confirmationCheckBoxFrame:Hide()
 		StaticPopup_Hide("HEMLOCK_CONFIRMATION");
 	end
 end
