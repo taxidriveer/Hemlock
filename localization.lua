@@ -43,7 +43,8 @@ HemlockLocalization = {
 		["option_reset_tooltip_desc"]		= "Hemlock will reset all hidden buttons",
 		["popup_buy"]			= "Buy",
 		["popup_cancel"]		= "Cancel",
-		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu."
+		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu.",
+		["popup_checkBoxText"]	= "Hide"
 	},
 	["frFR"] = {
 		["specify_make"]		= "Sélectionner le nombre de $S à acheter.",
@@ -88,7 +89,8 @@ HemlockLocalization = {
 		["option_reset_tooltip_desc"]		= "Réinitialise Hemlock et affiche tous les boutons",
 		["popup_buy"]			= "Acheter",
 		["popup_cancel"]		= "Annuler",
-		["popup_checkBox"]		= "Chochez cette case pour ne plus afficher la fenetre de confirmation.\nVous pouvez la reactiver dans les options."
+		["popup_checkBox"]		= "Chochez cette case pour ne plus afficher la fenetre de confirmation.\nVous pouvez la reactiver dans les options.",
+		["popup_checkBoxText"]	= "Masquer"
 	},
 	["koKR"] = {
 		["specify_make"]		= "인벤토리를 다시 채우기 위해 Hemlock에 원하는 $S의 수량을 지정하세요.",
@@ -133,7 +135,8 @@ HemlockLocalization = {
 		["option_reset_tooltip_desc"]		= "Hemlock will reset all hidden buttons",
 		["popup_buy"]			= "Buy",
 		["popup_cancel"]		= "Cancel",
-		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu."
+		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu.",
+		["popup_checkBoxText"]	= "Hide"
 	},
 	["zhCN"] = {
 		["specify_make"]		= "请指定您希望制毒助手帮助您自动补充的 $S 的数量.",
@@ -178,7 +181,8 @@ HemlockLocalization = {
 		["option_reset_tooltip_desc"]		= "Hemlock will reset all hidden buttons",
 		["popup_buy"]			= "Buy",
 		["popup_cancel"]		= "Cancel",
-		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu."
+		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu.",
+		["popup_checkBoxText"]	= "Hide"
 	},
 	["zhTW"] = {
 		["specify_make"]		= "請指定您希望製毒助手幫助您自動補充的 $S 的數量",
@@ -223,6 +227,7 @@ HemlockLocalization = {
 		["option_reset_tooltip_desc"]		= "Hemlock will reset all hidden buttons",
 		["popup_buy"]		= "Buy",
 		["popup_cancel"]		= "Cancel",
-		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu."
+		["popup_checkBox"]		= "Tick this box to hide the confirmation popup.\nYou can re-enable it in the options menu.",
+		["popup_checkBoxText"]	= "Hide"
 	},
 }

@@ -660,9 +660,10 @@ end
 
 function Hemlock:ConfirmationPopupCheckbox()
 	confirmationCheckBox = CreateFrame("CheckButton", "confirmationCheckBoxFrame", StaticPopup3, "ChatConfigCheckButtonTemplate");
-	confirmationCheckBox:SetPoint("TOPRIGHT", -8, -8);
-	confirmationCheckBoxFrameText:SetText("Hide");
-	confirmationCheckBoxFrameText:SetFont("Fonts\\FRIZQT__.TTF", 9)
+	confirmationCheckBox:SetPoint("TOPRIGHT", -8.5, -8.5);
+	confirmationCheckBoxFrame:SetScale(0.95);
+	confirmationCheckBoxFrameText:SetText(self:L("popup_checkBoxText"));
+	confirmationCheckBoxFrameText:SetFont("Fonts\\FRIZQT__.TTF", 9.5)
 	confirmationCheckBoxFrameText:SetPoint("LEFT", -23, 0);
 	confirmationCheckBox.tooltip = self:L("popup_checkBox");
 	confirmationCheckBox:SetScript("OnClick", function(self)
