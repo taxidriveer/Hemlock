@@ -70,6 +70,12 @@ function Hemlock:Register()
 			name = self:L("cmd_reset"),
 			desc = self:L("cmd_reset_desc"),
 		},
+		options = {
+			type = "execute",
+			func = function() InterfaceOptionsFrame_OpenToCategory(frame); InterfaceOptionsFrame_OpenToCategory(frame); end,
+			name = self:L("cmd_options"),
+			desc = self:L("cmd_options_desc"),
+		},
 		icon = {
 			type = "execute",
 			func = function() 
