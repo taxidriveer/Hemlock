@@ -1,7 +1,7 @@
 ﻿local addOnName = ...
 
 -- main frame
-local frame = CreateFrame("Frame")
+frame = CreateFrame("Frame","HemlockOptions")
 frame.name = addOnName
 InterfaceOptions_AddCategory(frame)
 frame:Hide()
@@ -16,8 +16,8 @@ frame:SetScript("OnShow", function(frame)
 	description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
 	description:SetText("Minimalistic addon to automate poison buying and creation")
 
-	local function newCheckbox(label, description, onClick)
-		local check = CreateFrame("CheckButton", "HemlockButtons" .. label, frame, "InterfaceOptionsCheckButtonTemplate")
+	local function newCheckbox(name, label, description, onClick)
+		local check = CreateFrame("CheckButton", "HemlockCheckBox" .. name, frame, "InterfaceOptionsCheckButtonTemplate")
 		check:SetScript("OnClick", function(self)
 			local tick = self:GetChecked()
 			onClick(self, tick and true or false)
@@ -34,28 +34,32 @@ frame:SetScript("OnShow", function(frame)
 		return check
 	end
 
-	local smartPoisonCount = newCheckbox(
-		Hemlock:L("option_poison_button_count"),
-		Hemlock:L("option_poison_button_count_desc"),
+	smartPoisonCount = newCheckbox(
+		"SmartPoisonCount",
+		Hemlock:L("option_smartPoisonCount"),
+		Hemlock:L("option_smartPoisonCount_desc"),
 		function(self, value) Hemlock.db.profile.options.smartPoisonCount = value; Hemlock:InitFrames() end)
 	smartPoisonCount:SetChecked(Hemlock.db.profile.options.smartPoisonCount)
 	smartPoisonCount:SetPoint("TOPLEFT", description, "BOTTOMLEFT", -2, -16)
 	
-	local chatMessages = newCheckbox(
+	chatMessages = newCheckbox(
+		"ChatMessages",
 		Hemlock:L("option_chatMessages"),
 		Hemlock:L("option_chatMessages_desc"),
 		function(self, value) Hemlock.db.profile.options.chatMessages = value end)
 	chatMessages:SetChecked(Hemlock.db.profile.options.chatMessages)
 	chatMessages:SetPoint("TOPLEFT", smartPoisonCount, "BOTTOMLEFT", 0, -8)
 	
-	local alternativeWoundPoisonIcon = newCheckbox(
+	alternativeWoundPoisonIcon = newCheckbox(
+		"AlternativeWoundPoisonIcon",
 		Hemlock:L("option_alternativeWoundPoisonIcon"),
 		Hemlock:L("option_alternativeWoundPoisonIcon_desc"),
 		function(self, value) Hemlock.db.profile.options.alternativeWoundPoisonIcon = value; Hemlock:InitFrames() end)
 	alternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
 	alternativeWoundPoisonIcon:SetPoint("TOPLEFT", chatMessages, "BOTTOMLEFT", 0, -8)
 	
-	local buyConfirmation = newCheckbox(
+	buyConfirmation = newCheckbox(
+		"BuyConfirmation",
 		Hemlock:L("option_buyConfirmation"),
 		Hemlock:L("option_buyConfirmation_desc"),
 		function(self, value) Hemlock.db.profile.options.buyConfirmation = value; Hemlock:InitFrames() end)

@@ -61,8 +61,8 @@ function Hemlock:Register()
 		scan = {
 			type = "execute",
 			func = function() Hemlock:ScanPoisons(1) end,
-			name = self:L("Scan Poisons"),
-			desc = self:L("Scan Poison Desc")
+			name = self:L("Scan_Poisons"),
+			desc = self:L("Scan_Poison_Desc")
 		},
 		reset = {
 			type = "execute",
@@ -74,14 +74,19 @@ function Hemlock:Register()
 			type = "execute",
 			func = function() 
 				if Hemlock.db.profile.options.alternativeWoundPoisonIcon == true then 
+					local optionName = self:L("option_alternativeWoundPoisonIcon")
+					local optionState = self:L("option_StateOff")
 					Hemlock.db.profile.options.alternativeWoundPoisonIcon = false
-					Hemlock:Print("Alternative Wound Poison icon OFF.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 					self:InitFrames()
 				else
+					local optionName = self:L("option_alternativeWoundPoisonIcon")
+					local optionState = self:L("option_StateOn")
 					Hemlock.db.profile.options.alternativeWoundPoisonIcon = true
-					Hemlock:Print("Alternative Wound Poison icon ON.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 					self:InitFrames()
 				end
+				Hemlock:RefreshOptions()
 			end,
 			name = self:L("option_alternativeWoundPoisonIcon"),
 			desc = self:L("option_alternativeWoundPoisonIcon_desc"),
@@ -90,12 +95,17 @@ function Hemlock:Register()
 			type = "execute",
 			func = function() 
 				if Hemlock.db.profile.options.chatMessages == true then 
+					local optionName = self:L("option_chatMessages")
+					local optionState = self:L("option_StateOff")
 					Hemlock.db.profile.options.chatMessages = false
-					Hemlock:Print("Chat messages disabled.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 				else
+					local optionName = self:L("option_chatMessages")
+					local optionState = self:L("option_StateOn")
 					Hemlock.db.profile.options.chatMessages = true
-					Hemlock:Print("Chat messages enabled.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 				end
+				Hemlock:RefreshOptions()
 			end,
 			name = self:L("option_chatMessages"),
 			desc = self:L("option_chatMessages_desc"),
@@ -104,30 +114,40 @@ function Hemlock:Register()
 			type = "execute",
 			func = function() 
 				if Hemlock.db.profile.options.smartPoisonCount == true then 
+					local optionName = self:L("option_smartPoisonCount")
+					local optionState = self:L("option_StateOff")
 					Hemlock.db.profile.options.smartPoisonCount = false
-					Hemlock:Print("Smart Button Count OFF.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 					self:InitFrames()
 				else
+					local optionName = self:L("option_smartPoisonCount")
+					local optionState = self:L("option_StateOn")
 					Hemlock.db.profile.options.smartPoisonCount = true
-					Hemlock:Print("Smart Button Count ON.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 					self:InitFrames()
 				end
+				Hemlock:RefreshOptions()
 			end,
-			name = self:L("option_poison_button_count"),
-			desc = self:L("option_poison_button_count_desc"),
+			name = self:L("option_smartPoisonCount"),
+			desc = self:L("option_smartPoisonCount_desc"),
 		},
 		confirmation = {
 			type = "execute",
 			func = function() 
 				if Hemlock.db.profile.options.buyConfirmation == true then 
+					local optionName = self:L("option_buyConfirmation")
+					local optionState = self:L("option_StateOff")
 					Hemlock.db.profile.options.buyConfirmation = false
-					Hemlock:Print("Buy confirmation OFF.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 					self:InitFrames()
 				else
+					local optionName = self:L("option_buyConfirmation")
+					local optionState = self:L("option_StateOn")
 					Hemlock.db.profile.options.buyConfirmation = true
-					Hemlock:Print("Buy confirmation ON.")
+					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
 					self:InitFrames()
 				end
+				Hemlock:RefreshOptions()
 			end,
 			name = self:L("option_buyConfirmation"),
 			desc = self:L("option_buyConfirmation_desc"),
@@ -644,15 +664,25 @@ function Hemlock:ConfirmationPopupCheckbox()
 	confirmationCheckBoxFrameText:SetText("Hide");
 	confirmationCheckBoxFrameText:SetFont("Fonts\\FRIZQT__.TTF", 9)
 	confirmationCheckBoxFrameText:SetPoint("LEFT", -23, 0);
-	confirmationCheckBox.tooltip = "Tick this box to hide the popup.\nYou can re-enable it in the options menu.";
+	confirmationCheckBox.tooltip = self:L("popup_checkBox");
 	confirmationCheckBox:SetScript("OnClick", function(self)
 		local value = self:GetChecked()
 		if value then value = false else value = true end
 		Hemlock.db.profile.options.buyConfirmation = value
+		Hemlock:RefreshOptions()
 		PlaySound(856)
 	end);
 end
 
+function Hemlock:RefreshOptions()
+	-- Verify if the options are loaded
+	if HemlockCheckBoxSmartPoisonCount then
+		HemlockCheckBoxSmartPoisonCount:SetChecked(Hemlock.db.profile.options.smartPoisonCount)
+		HemlockCheckBoxChatMessages:SetChecked(Hemlock.db.profile.options.chatMessages)
+		HemlockCheckBoxAlternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
+		HemlockCheckBoxBuyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
+	end
+end
 function Hemlock:MERCHANT_SHOW()
 	local localclass, trueclass = UnitClass("player")
 
