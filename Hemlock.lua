@@ -43,7 +43,6 @@ local reagentIDs = {5140}
 
 Hemlock = LibStub("AceAddon-3.0"):NewAddon("Hemlock", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 
-
 local defaults = {
   profile = {
 	poisonRequirements = {},
@@ -645,18 +644,42 @@ function Hemlock:ButtonText(f,itemName,frameType)
 end
 
 function Hemlock:ConfirmationPopup(popupText,frame,pName)
+	-- Get reagents total price
+	local totalReagentPrice = 0
+	if MerchantFrame:IsVisible() then
+		for i = 1, GetMerchantNumItems() do
+			local merchandRName, _, merchandRPrice, merchandRQuantity = GetMerchantItemInfo(i)
+			if merchandRName then
+				for buyrName, buyrToBuy in pairs(buyTable) do
+					if buyrName then
+						if merchandRName == buyrName then
+							reagentPrice = ((buyrToBuy * merchandRPrice) / merchandRQuantity)
+							totalReagentPrice = totalReagentPrice + reagentPrice
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	-- Popup dialog
 	StaticPopupDialogs["HEMLOCK_CONFIRMATION"] = {
 		text = "|cff55ff55Hemlock|r\n" .. popupText,
 		button1 = self:L("popup_buy"),
 		button2 = self:L("popup_cancel"),
+		hasMoneyFrame = 1,
 		OnAccept = function()
 			Hemlock:ConfirmationPopupAccepted(frame,pName)
+		end,
+		OnShow = function(self)
+			MoneyFrame_Update(self.moneyFrame, totalReagentPrice);
 		end,
 		timeout = 0,
 		whileDead = true,
 		hideOnEscape = true,
 		preferredIndex = 3,
 	}
+	
 	StaticPopup_Show ("HEMLOCK_CONFIRMATION")
 	local checkboxState = Hemlock.db.profile.options.buyConfirmation
 	if checkboxState then checkboxState = false else checkboxState = true end
@@ -714,6 +737,7 @@ function Hemlock:RefreshOptions()
 		HemlockCheckBoxIgnoreLowerRankPoisons:SetChecked(Hemlock.db.profile.options.ignoreLowerRankPoisons)
 	end
 end
+
 function Hemlock:MERCHANT_SHOW()
 	local localclass, trueclass = UnitClass("player")
 
