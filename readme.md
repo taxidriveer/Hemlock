@@ -1,6 +1,5 @@
 Fan Update
 ---------------------------------------
-**Use at your own risk!**
 
 * Migrated to Ace3 / LibDropDown
 * Support for Classic
