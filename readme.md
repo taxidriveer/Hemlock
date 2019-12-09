@@ -29,4 +29,4 @@ alt textThe number of poisons in your inventory appears in red is when the thres
 
 **Lacking Features, Ideas & Problems**
 
-Display the total cost before buying poison in the confirmation popup.
+The "ignore old poisons in inventory" option is not working properly, this is due to hemlock not knowing what poison rank you can craft when you open the vendor window.
