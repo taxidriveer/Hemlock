@@ -666,9 +666,6 @@ do
 	end
 
 	local function runHandler(button, handler, ...)
-		if not button then -- cheap workaround
-			return nil 
-		end
 		info.handler = handler
 		info.option = button.data
 		if not button.rootMenu then
@@ -774,9 +771,6 @@ do
 		end
 
 		local function inputValueChanged(self, val)
-			if not val then -- cheap workaround
-				return nil
-			end
 			initInfo('input')
 			runHandler(self:GetParent():GetParent(), "set", val)
 			self:GetParent():GetRoot():Refresh()
@@ -950,10 +944,6 @@ do
 		end
 
 		local function sliderValueChanged(self, val)
-			Parent = self:GetParent():GetParent()
-			if not (Parent) then -- cheap workaround
-				return nil
-			end
 			initInfo('range')
 			runHandler(self:GetParent():GetParent(), "set", val)
 			self:GetParent():GetRoot():Refresh()
