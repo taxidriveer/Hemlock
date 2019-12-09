@@ -403,7 +403,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					end,
 					set = function(_,v2)
 						self.db.profile.poisonRequirements[itemName] = v2
-						self:InitFrames()
+						Hemlock:ButtonText(f,itemName,frameType)
 					end,
 				},
 				exclude = {
@@ -478,7 +478,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 					end,
 					set = function(_,v2)
 						self.db.profile.reagentRequirements[itemName] = v2
-						self:InitFrames()
+						Hemlock:ButtonText(f,itemName,frameType)
 					end
 				},
 				autobuy = {
