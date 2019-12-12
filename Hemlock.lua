@@ -2,7 +2,7 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1.0.9 $
+Revision: $Rev: 1.0.9.1 $
 Developed by: Antiarc
 Currently maintained by: Grome
 Documentation:
