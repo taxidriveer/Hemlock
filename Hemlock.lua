@@ -2,13 +2,13 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1.0.9.1 $
+Revision: $Rev: 1.1 $
 Developed by: Antiarc
 Currently maintained by: Grome
 Documentation:
 Github: https://github.com/taxidriveer/Hemlock
 Description: Minimalistic addon to automate poison buying and creation
-Dependencies: AceLibrary, Dewdrop-2.0
+Dependencies: AceLibrary, Dewdrop-2.0 (modified)
 ]]--
 
 --[[*** Configuration ***]]--
@@ -305,10 +305,15 @@ function Hemlock:OnInitialize()
 	self.enabled = false
 	self:RegisterEvent("MERCHANT_SHOW");
 	self:RegisterEvent("MERCHANT_CLOSED");
-	self:RegisterEvent("BAG_UPDATE");
+	self:RegisterEvent("BAG_UPDATE_DELAYED");
 	self:RegisterEvent("PLAYER_LOGIN");
 	self.frameIndex = 0
 	self.frames = {}
+	self.buyTable = {}
+	self.buyTable["InitialInventory"] = {}
+	self.buyTable["CurrentInventory"] = {}
+	self.buyTable["OnQueue"] = {}
+	self.buyTable["ConfirmationPopup"] = {}
 	self.inited = false
 end
 
@@ -650,7 +655,7 @@ function Hemlock:ConfirmationPopup(popupText,frame,pName)
 		for i = 1, GetMerchantNumItems() do
 			local merchandRName, _, merchandRPrice, merchandRQuantity = GetMerchantItemInfo(i)
 			if merchandRName then
-				for buyrName, buyrToBuy in pairs(buyTable) do
+				for buyrName, buyrToBuy in pairs(self.buyTable.ConfirmationPopup) do
 					if buyrName then
 						if merchandRName == buyrName then
 							reagentPrice = ((buyrToBuy * merchandRPrice) / merchandRQuantity)
@@ -679,7 +684,7 @@ function Hemlock:ConfirmationPopup(popupText,frame,pName)
 		hideOnEscape = true,
 		preferredIndex = 3,
 	}
-	
+
 	StaticPopup_Show ("HEMLOCK_CONFIRMATION")
 	local checkboxState = Hemlock.db.profile.options.buyConfirmation
 	if checkboxState then checkboxState = false else checkboxState = true end
@@ -690,20 +695,26 @@ end
 function Hemlock:ConfirmationPopupAccepted(frame,pName)
 	frame:Disable()
 	frame:GetNormalTexture():SetDesaturated(true)
-	toBuyTimer = true
-
-	for rName, rToBuy in pairs(buyTable) do
+	for rName, rToBuy in pairs(self.buyTable.ConfirmationPopup) do
 		if rName then
+		
+			-- Add reagents to OnQueue
+			if Hemlock.buyTable.OnQueue[rName] then
+				Hemlock.buyTable.OnQueue[rName] = Hemlock.buyTable.OnQueue[rName] + rToBuy
+			else
+				self.buyTable.OnQueue[rName] = rToBuy
+			end
+			
 			local buyResult = self:BuyVendorItem(rName, rToBuy)
 			if not buyResult then
 				Hemlock:PrintMessage(self:L("unableToBuy", rToBuy, pName))
-				noMessage = true
+				self.noMessage = true
 			else
-				noMessage = false
+				self.noMessage = false
 			end
 		end
 	end
-	if not noMessage then
+	if not self.noMessage then
 		Hemlock:PrintMessage(self:L("pleasepress",  pName))
 		return
 	end
@@ -740,7 +751,9 @@ end
 
 function Hemlock:MERCHANT_SHOW()
 	local localclass, trueclass = UnitClass("player")
-
+		-- We clean the previous buy queue to be safe...
+	for k, v in pairs(self.buyTable.OnQueue) do self.buyTable.OnQueue[k] = nil end 
+	
 	if trueclass ~= "ROGUE" or not self.poisonSpellName or not IsUsableSpell(self.poisonSpellName) or not self.enabled then return end
 
 	if not self.inited then
@@ -768,7 +781,16 @@ function Hemlock:MERCHANT_SHOW()
 			-- If this is a deathweed vendor, we'll assume he's selling poison.
 			if link and strfind(link, "Hitem:5173:") then
 				HemlockFrame:Show()
-				Hemlock:BAG_UPDATE()
+				Hemlock:BAG_UPDATE_DELAYED()
+				-- Update initial inventory
+				for reagent = 1, GetMerchantNumItems() do
+					local id = GetMerchantItemID(reagent)
+					local item = Item:CreateFromItemID(id)	
+					item:ContinueOnItemLoad(function()
+						local reagentName = GetMerchantItemInfo(reagent)
+						self.buyTable.InitialInventory[reagentName] = GetItemCount(reagentName)
+					end)
+				end
 				return
 			elseif not link then
 				haveNils = true
@@ -789,24 +811,71 @@ function Hemlock:MERCHANT_CLOSED()
 	end
 end
 
-function Hemlock:BAG_UPDATE(bag_id)
+function Hemlock:BAG_UPDATE_DELAYED(bag_id)
 	if HemlockFrame:IsVisible() then
+		local CurrentInventoryReagents = 0
+		local OnQueueReagents = 0
+		
 		for k, f in pairs(self.frames) do
 			if f then
-				local item = Item:CreateFromItemID(f.item_id)	
+				local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
+				if f.item_type == 1 then
+					Hemlock:ButtonText(f,itemName,f.item_type)
+				elseif f.item_type == 2 then
+					Hemlock:ButtonText(f,itemName,f.item_type)					
+				end
+			end
+		end
+		
+		-- Update CurrentInventory
+		for reagent = 1, GetMerchantNumItems() do
+			local id = GetMerchantItemID(reagent)
+			local item = Item:CreateFromItemID(id)	
+			item:ContinueOnItemLoad(function()
+				local reagentName = GetMerchantItemInfo(reagent)
+				self.buyTable.CurrentInventory[reagentName] = GetItemCount(reagentName)
+				CurrentInventoryReagents = CurrentInventoryReagents + 1
+			end)
+		end
+		
+		-- Enable frame based on inventory status
+		for reagentNameOnQueue, reagentValueOnQueue in pairs(self.buyTable.OnQueue) do 
+			for reagentNameCurrentInventory, reagentValueCurrentInventory in pairs(self.buyTable.CurrentInventory) do
+				if reagentNameOnQueue == reagentNameCurrentInventory then
+					-- Hemlock:Print("|cff7777ffChecking queue item:|r",reagentNameCurrentInventory)
+					-- Hemlock:Print("In Queue:", reagentValueOnQueue)
+					-- Hemlock:Print("Initial inventory:", self.buyTable.InitialInventory[reagentNameCurrentInventory])
+					local newReagents = reagentValueCurrentInventory - self.buyTable.InitialInventory[reagentNameCurrentInventory]
+					-- Hemlock:Print("New Reagents:",newReagents)			
+					-- Hemlock:Print("Current Inventory:", reagentValueCurrentInventory)
+					if newReagents >= reagentValueOnQueue then
+						-- Hemlock:Print("|cffff7777Cleaning:|r",reagentNameOnQueue)
+						self.buyTable.OnQueue[reagentNameOnQueue] = nil
+					end
+					-- Hemlock:Print("------------------")
+				end
+			end
+		end
+		
+		-- Count how many reagents we have in our buy queue
+		for k, v in pairs(Hemlock.buyTable.OnQueue) do
+			OnQueueReagents = OnQueueReagents + 1
+		end
+		
+		-- Enable Hemlock frames if the queue is empty
+		if OnQueueReagents < 1 then
+			-- Hemlock:Print("|cff77ff77Enable frames|r")
+			for k, v in pairs(self.frames) do 
+				v:Enable()
+				v:GetNormalTexture():SetDesaturated(false)
+			end
+			-- Hemlock:Print("|cff77ff77Update initial inventory|r")
+			for reagent = 1, GetMerchantNumItems() do
+				local id = GetMerchantItemID(reagent)
+				local item = Item:CreateFromItemID(id)	
 				item:ContinueOnItemLoad(function()
-					local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
-					if f.item_type == 1 then
-						Hemlock:ButtonText(f,itemName,f.item_type)
-					elseif f.item_type == 2 then
-						Hemlock:ButtonText(f,itemName,f.item_type)					
-					end
-					if not toBuyTimer then
-						f:Enable()
-						f:GetNormalTexture():SetDesaturated(false)
-					else
-						self:ScheduleTimer((function() f:Enable(); f:GetNormalTexture():SetDesaturated(false); toBuyTimer = false; end), 0.5)
-					end
+					local reagentName = GetMerchantItemInfo(reagent)
+					self.buyTable.InitialInventory[reagentName] = GetItemCount(reagentName)
 				end)
 			end
 		end
@@ -908,8 +977,8 @@ function Hemlock:GetNeededPoisons(name, frame)
 	local poison, skillIndex = self:GetMaxPoisonRank(v)
 	local buyConfirmation = Hemlock.db.profile.options.buyConfirmation
 	local popupText = ""
-	buyTable = {}
-	noMessage = false
+	for k,v in pairs(self.buyTable.ConfirmationPopup) do self.buyTable.ConfirmationPopup[k] = nil end
+	self.noMessage = false
 	if not self.claimedReagents[skillIndex] then self.claimedReagents[skillIndex] = {} end
 
 	if poison then
@@ -928,14 +997,14 @@ function Hemlock:GetNeededPoisons(name, frame)
 				end
 				toBuy = toBuy - playerReagentCount
 				if toBuy > 0 then
-					buyTable[reagentName] = toBuy
-					noMessage = true
+					self.buyTable.ConfirmationPopup[reagentName] = toBuy
+					self.noMessage = true
 				else
 					self.claimedReagents[skillIndex][reagentName] = need
 				end
 			end
 			
-			if not noMessage then
+			if not self.noMessage then
 				for i = 1, GetTradeSkillNumReagents(skillIndex) do
 					local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(skillIndex, i)
 				end
@@ -950,8 +1019,8 @@ function Hemlock:GetNeededPoisons(name, frame)
 		end
 
 	end
-	for rName, rToBuy in pairs(buyTable) do
-		if rName then
+	for rName, rToBuy in pairs(self.buyTable.ConfirmationPopup) do
+		if rName and type(rToBuy) ~= "table" then
 			popupText = popupText .. "\n" .. rName .. "|cffffd200 x " .. rToBuy .. "|r"
 		end
 	end
