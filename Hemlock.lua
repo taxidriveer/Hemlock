@@ -2,7 +2,7 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1.1 $
+Revision: $Rev: 1.1.1 $
 Developed by: Antiarc
 Currently maintained by: Grome
 Documentation:
@@ -44,143 +44,142 @@ local reagentIDs = {5140}
 Hemlock = LibStub("AceAddon-3.0"):NewAddon("Hemlock", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 
 local defaults = {
-  profile = {
-	poisonRequirements = {},
-	reagentRequirements = {},
-	autoBuy = {},
-	dontUse = {},
-	options = {}
-  }
+	profile = {
+		poisonRequirements = {},
+		reagentRequirements = {},
+		autoBuy = {},
+		dontUse = {},
+		options = {}
+	}
 }
 
 function Hemlock:Register()
 	local options = {
-	type='group',
-	args = {
-		scan = {
-			type = "execute",
-			func = function() Hemlock:ScanPoisons(1) end,
-			name = self:L("Scan_Poisons"),
-			desc = self:L("Scan_Poison_Desc")
-		},
-		reset = {
-			type = "execute",
-			func = function() Hemlock:Reset() end,
-			name = self:L("cmd_reset"),
-			desc = self:L("cmd_reset_desc"),
-		},
-		options = {
-			type = "execute",
-			func = function() InterfaceOptionsFrame_OpenToCategory(frame); InterfaceOptionsFrame_OpenToCategory(frame); end,
-			name = self:L("cmd_options"),
-			desc = self:L("cmd_options_desc"),
-		},
-		icon = {
-			type = "execute",
-			func = function() 
-				if Hemlock.db.profile.options.alternativeWoundPoisonIcon == true then 
-					local optionName = self:L("option_alternativeWoundPoisonIcon")
-					local optionState = self:L("option_StateOff")
-					Hemlock.db.profile.options.alternativeWoundPoisonIcon = false
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				else
-					local optionName = self:L("option_alternativeWoundPoisonIcon")
-					local optionState = self:L("option_StateOn")
-					Hemlock.db.profile.options.alternativeWoundPoisonIcon = true
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				end
-				Hemlock:RefreshOptions()
-			end,
-			name = self:L("option_alternativeWoundPoisonIcon"),
-			desc = self:L("option_alternativeWoundPoisonIcon_desc"),
-		},
-		messages = {
-			type = "execute",
-			func = function() 
-				if Hemlock.db.profile.options.chatMessages == true then 
-					local optionName = self:L("option_chatMessages")
-					local optionState = self:L("option_StateOff")
-					Hemlock.db.profile.options.chatMessages = false
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-				else
-					local optionName = self:L("option_chatMessages")
-					local optionState = self:L("option_StateOn")
-					Hemlock.db.profile.options.chatMessages = true
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-				end
-				Hemlock:RefreshOptions()
-			end,
-			name = self:L("option_chatMessages"),
-			desc = self:L("option_chatMessages_desc"),
-		},
-		smart = {
-			type = "execute",
-			func = function() 
-				if Hemlock.db.profile.options.smartPoisonCount == true then 
-					local optionName = self:L("option_smartPoisonCount")
-					local optionState = self:L("option_StateOff")
-					Hemlock.db.profile.options.smartPoisonCount = false
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				else
-					local optionName = self:L("option_smartPoisonCount")
-					local optionState = self:L("option_StateOn")
-					Hemlock.db.profile.options.smartPoisonCount = true
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				end
-				Hemlock:RefreshOptions()
-			end,
-			name = self:L("option_smartPoisonCount"),
-			desc = self:L("option_smartPoisonCount_desc"),
-		},
-		ranks = {
-			type = "execute",
-			func = function() 
-				if Hemlock.db.profile.options.ignoreLowerRankPoisons == true then 
-					local optionName = self:L("option_ignoreLowerRankPoisons")
-					local optionState = self:L("option_StateOff")
-					Hemlock.db.profile.options.ignoreLowerRankPoisons = false
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				else
-					local optionName = self:L("option_ignoreLowerRankPoisons")
-					local optionState = self:L("option_StateOn")
-					Hemlock.db.profile.options.ignoreLowerRankPoisons = true
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				end
-				Hemlock:RefreshOptions()
-			end,
-			name = self:L("option_ignoreLowerRankPoisons"),
-			desc = self:L("option_ignoreLowerRankPoisons_desc"),
-		},
-		confirmation = {
-			type = "execute",
-			func = function() 
-				if Hemlock.db.profile.options.buyConfirmation == true then 
-					local optionName = self:L("option_buyConfirmation")
-					local optionState = self:L("option_StateOff")
-					Hemlock.db.profile.options.buyConfirmation = false
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				else
-					local optionName = self:L("option_buyConfirmation")
-					local optionState = self:L("option_StateOn")
-					Hemlock.db.profile.options.buyConfirmation = true
-					Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
-					self:InitFrames()
-				end
-				Hemlock:RefreshOptions()
-			end,
-			name = self:L("option_buyConfirmation"),
-			desc = self:L("option_buyConfirmation_desc"),
+		type='group',
+		args = {
+			scan = {
+				type = "execute",
+				func = function() Hemlock:ScanPoisons(1) end,
+				name = self:L("Scan_Poisons"),
+				desc = self:L("Scan_Poison_Desc")
+			},
+			reset = {
+				type = "execute",
+				func = function() Hemlock:Reset() end,
+				name = self:L("cmd_reset"),
+				desc = self:L("cmd_reset_desc"),
+			},
+			options = {
+				type = "execute",
+				func = function() InterfaceOptionsFrame_OpenToCategory(frame); InterfaceOptionsFrame_OpenToCategory(frame); end,
+				name = self:L("cmd_options"),
+				desc = self:L("cmd_options_desc"),
+			},
+			icon = {
+				type = "execute",
+				func = function() 
+					if Hemlock.db.profile.options.alternativeWoundPoisonIcon == true then 
+						local optionName = self:L("option_alternativeWoundPoisonIcon")
+						local optionState = self:L("option_StateOff")
+						Hemlock.db.profile.options.alternativeWoundPoisonIcon = false
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					else
+						local optionName = self:L("option_alternativeWoundPoisonIcon")
+						local optionState = self:L("option_StateOn")
+						Hemlock.db.profile.options.alternativeWoundPoisonIcon = true
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					end
+					Hemlock:RefreshOptions()
+				end,
+				name = self:L("option_alternativeWoundPoisonIcon"),
+				desc = self:L("option_alternativeWoundPoisonIcon_desc"),
+			},
+			messages = {
+				type = "execute",
+				func = function() 
+					if Hemlock.db.profile.options.chatMessages == true then 
+						local optionName = self:L("option_chatMessages")
+						local optionState = self:L("option_StateOff")
+						Hemlock.db.profile.options.chatMessages = false
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+					else
+						local optionName = self:L("option_chatMessages")
+						local optionState = self:L("option_StateOn")
+						Hemlock.db.profile.options.chatMessages = true
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+					end
+					Hemlock:RefreshOptions()
+				end,
+				name = self:L("option_chatMessages"),
+				desc = self:L("option_chatMessages_desc"),
+			},
+			smart = {
+				type = "execute",
+				func = function() 
+					if Hemlock.db.profile.options.smartPoisonCount == true then 
+						local optionName = self:L("option_smartPoisonCount")
+						local optionState = self:L("option_StateOff")
+						Hemlock.db.profile.options.smartPoisonCount = false
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					else
+						local optionName = self:L("option_smartPoisonCount")
+						local optionState = self:L("option_StateOn")
+						Hemlock.db.profile.options.smartPoisonCount = true
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					end
+					Hemlock:RefreshOptions()
+				end,
+				name = self:L("option_smartPoisonCount"),
+				desc = self:L("option_smartPoisonCount_desc"),
+			},
+			ranks = {
+				type = "execute",
+				func = function() 
+					if Hemlock.db.profile.options.ignoreLowerRankPoisons == true then 
+						local optionName = self:L("option_ignoreLowerRankPoisons")
+						local optionState = self:L("option_StateOff")
+						Hemlock.db.profile.options.ignoreLowerRankPoisons = false
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					else
+						local optionName = self:L("option_ignoreLowerRankPoisons")
+						local optionState = self:L("option_StateOn")
+						Hemlock.db.profile.options.ignoreLowerRankPoisons = true
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					end
+					Hemlock:RefreshOptions()
+				end,
+				name = self:L("option_ignoreLowerRankPoisons"),
+				desc = self:L("option_ignoreLowerRankPoisons_desc"),
+			},
+			confirmation = {
+				type = "execute",
+				func = function() 
+					if Hemlock.db.profile.options.buyConfirmation == true then 
+						local optionName = self:L("option_buyConfirmation")
+						local optionState = self:L("option_StateOff")
+						Hemlock.db.profile.options.buyConfirmation = false
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					else
+						local optionName = self:L("option_buyConfirmation")
+						local optionState = self:L("option_StateOn")
+						Hemlock.db.profile.options.buyConfirmation = true
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					end
+					Hemlock:RefreshOptions()
+				end,
+				name = self:L("option_buyConfirmation"),
+				desc = self:L("option_buyConfirmation_desc"),
+			}
 		}
 	}
-	}
-
 	for k, v in pairs(self.db.profile.poisonRequirements) do
 		options.args[gsub(k, " ", "")] = {
 			type = "group",
@@ -218,7 +217,6 @@ function Hemlock:Register()
 			}
 		}
 	end
-
 	for k, v in pairs(self.db.profile.reagentRequirements) do
 		options.args[gsub(k, " ", "")] = {
 			type = "group",
@@ -268,44 +266,38 @@ function Hemlock:Register()
 end
 
 function Hemlock:InitializeDB()
-
-for k,v in ipairs(poisonIDs) do
-	local item = Item:CreateFromItemID(v)
-	item:ContinueOnItemLoad(function()
-		local itemName = GetItemInfo(v)	
-		defaults.profile.poisonRequirements[itemName] = 0
-	end)
-end
-
-for k,v in ipairs(reagentIDs) do
-	local item = Item:CreateFromItemID(v)
-	item:ContinueOnItemLoad(function()
-		local itemName = GetItemInfo(v)	
-		defaults.profile.reagentRequirements[itemName] = 0
-	end)
-end
-
-self.db.defaults.profile.options.smartPoisonCount = false
-defaults.profile.options.chatMessages = true
-self.db.defaults.profile.options.buyConfirmation = true
-self.db.defaults.profile.options.alternativeWoundPoisonIcon = false
-self.db.defaults.profile.options.ignoreLowerRankPoisons = false
+	for k,v in ipairs(poisonIDs) do
+		local item = Item:CreateFromItemID(v)
+		item:ContinueOnItemLoad(function()
+			local itemName = GetItemInfo(v)	
+			defaults.profile.poisonRequirements[itemName] = 0
+		end)
+	end
+	for k,v in ipairs(reagentIDs) do
+		local item = Item:CreateFromItemID(v)
+		item:ContinueOnItemLoad(function()
+			local itemName = GetItemInfo(v)	
+			defaults.profile.reagentRequirements[itemName] = 0
+		end)
+	end
+	self.db.defaults.profile.options.smartPoisonCount = false
+	defaults.profile.options.chatMessages = true
+	self.db.defaults.profile.options.buyConfirmation = true
+	self.db.defaults.profile.options.alternativeWoundPoisonIcon = false
+	self.db.defaults.profile.options.ignoreLowerRankPoisons = false
 end
 
 function Hemlock:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("HemlockDB", defaults, true)
 	self.db = LibStub("AceDB-3.0"):New("HemlockDBPC", defaults, true)
 	self:InitializeDB()
-	-- C_Timer.After(0.2, function() -- Delay to cache items
-		self:Register()
-	-- end)
-	-- self:Print("Hemlock is initializing")
+	self:Register()
 	self:ConfirmationPopupCheckbox()
 	confirmationCheckBoxFrame:Hide()
 	self.enabled = false
 	self:RegisterEvent("MERCHANT_SHOW");
 	self:RegisterEvent("MERCHANT_CLOSED");
-	self:RegisterEvent("BAG_UPDATE_DELAYED");
+	self:RegisterEvent("BAG_UPDATE");
 	self:RegisterEvent("PLAYER_LOGIN");
 	self.frameIndex = 0
 	self.frames = {}
@@ -317,8 +309,7 @@ function Hemlock:OnInitialize()
 	self.inited = false
 end
 
-function Hemlock:PLAYER_LOGIN()
-	
+function Hemlock:PLAYER_LOGIN()	
 	-- Detect whether or not we know poison.
 	for i = 1, MAX_SKILLLINE_TABS do
 		local name, texture, offset, numSpells = GetSpellTabInfo(i);
@@ -335,7 +326,6 @@ function Hemlock:PLAYER_LOGIN()
 		end
 		if self.poisonSpellName then break end
 	end
-	
 	if not self.poisonSpellName then return end
 	for k,v in ipairs(safeIDs) do
 		local item = Item:CreateFromItemID(v)
@@ -346,7 +336,6 @@ function Hemlock:PLAYER_LOGIN()
 			end
 		end)	
 	end
-	
 	-- Backward compatibility
 	if Hemlock.db.profile.options.smartButtonCount == true then 
 		Hemlock.db.profile.options.smartPoisonCount = true
@@ -358,18 +347,18 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	local woundPoison = false
 	local alternativeWoundPoisonIcon = Hemlock.db.profile.options.alternativeWoundPoisonIcon
 	local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(itemID)
-
+	-- Get wound poison ID based on the rank
 	for k,v in ipairs(woundPoisonIDs) do
 		if itemID == v then
 			woundPoison = true
 		end
 	end
-
+	-- Configure requirements to 0 if no entry in the db, used for the  first load
 	if not itemName then return nil end
 	if not self.db.profile.poisonRequirements[itemName] then
 		self.db.profile.poisonRequirements[itemName] = 0
 	end	
-
+	-- Created frame
 	local f = getglobal("HemlockPoisonButton" .. itemID)
 	if not f then
 		f = CreateFrame("Button", "HemlockPoisonButton" .. itemID, HemlockFrame, "HemlockPoisonTemplate")
@@ -380,7 +369,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	else
 		f:SetPoint("TOP", lastFrame, "BOTTOM", 0, space)
 	end
-
+	-- Apply alternative poison icon
 	if (alternativeWoundPoisonIcon and woundPoison) then
 		f:SetNormalTexture(134197)
 	else
@@ -388,7 +377,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	end
 	f:Show()
 	f.tooltipText = itemName
-	
+	-- Ace3 menu
 	local menu = {}
 	if frameType == 1 then
 		menu = {
@@ -512,9 +501,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				}				
 			}
 		}
-
-		Hemlock:ButtonText(f,itemName,frameType)
-		
+		Hemlock:ButtonText(f,itemName,frameType)	
 		f:RegisterForClicks("LeftButtonUp", "RightButtonUp");		
 		f:SetScript("OnEnter", function()
 				if (LDDMenu) then
@@ -537,7 +524,6 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				if toBuy > 0 then
 					f:Disable()
 					f:GetNormalTexture():SetDesaturated(true)
-					toBuyTimer = true
 					Hemlock:BuyVendorItem(itemName, toBuy)
 				else
 					Hemlock:PrintMessage(Hemlock:L("skippingReagent", itemName, Hemlock.db.profile.reagentRequirements[itemName], GetItemCount(itemName)))
@@ -551,7 +537,6 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			end
 		end)
 	end
-
 	f.item_id = itemID
 	f.item_type = frameType
 	if self.db.profile.dontUse[itemName] then
@@ -565,14 +550,11 @@ end
 function Hemlock:InitFrames()
 	local lastFrame = nil
 	local space = -3
-
 	self.frameIndex = 0
-
 	for k,v in pairs(poisonIDs) do
 		local lf = Hemlock:MakeFrame(v, space, lastFrame, 1)
 		if lf then lastFrame = lf end
 	end
-
 	for k,v in pairs(reagentIDs) do
 		local lf = Hemlock:MakeFrame(v, space, lastFrame, 2)
 		if lf then lastFrame = lf end
@@ -610,6 +592,7 @@ end
 
 function Hemlock:ButtonText(f,itemName,frameType)
 	if frameType == 1 then
+		-- Color the text based on inventory and requirements
 		local poisonRequirement = self.db.profile.poisonRequirements[itemName]
 		local poisonInventory = self:GetPoisonsInInventory(itemName)
 		if (poisonRequirement > poisonInventory) then
@@ -617,7 +600,7 @@ function Hemlock:ButtonText(f,itemName,frameType)
 		else
 			color = "|cff00C621"
 		end	
-		
+		-- Set text to Smart Poison count or default layout
 		if (Hemlock.db.profile.options.smartPoisonCount and poisonRequirement and poisonInventory) then
 			poisonSmartText = poisonRequirement - poisonInventory
 			if poisonSmartText < 1 then
@@ -635,7 +618,6 @@ function Hemlock:ButtonText(f,itemName,frameType)
 		else
 			color = "|cff00C621"
 		end
-	
 		if (Hemlock.db.profile.options.smartPoisonCount and reagentRequirements and reagentInventory) then
 			reagentSmartText = reagentRequirements - reagentInventory
 			if reagentSmartText < 1 then
@@ -665,8 +647,7 @@ function Hemlock:ConfirmationPopup(popupText,frame,pName)
 				end
 			end
 		end
-	end
-	
+	end	
 	-- Popup dialog
 	StaticPopupDialogs["HEMLOCK_CONFIRMATION"] = {
 		text = "|cff55ff55Hemlock|r\n" .. popupText,
@@ -684,7 +665,6 @@ function Hemlock:ConfirmationPopup(popupText,frame,pName)
 		hideOnEscape = true,
 		preferredIndex = 3,
 	}
-
 	StaticPopup_Show ("HEMLOCK_CONFIRMATION")
 	local checkboxState = Hemlock.db.profile.options.buyConfirmation
 	if checkboxState then checkboxState = false else checkboxState = true end
@@ -695,16 +675,16 @@ end
 function Hemlock:ConfirmationPopupAccepted(frame,pName)
 	frame:Disable()
 	frame:GetNormalTexture():SetDesaturated(true)
+	-- failsafe if something goes wrong with the reagents detection, hopefully we never going to need this!
+	-- self:ScheduleTimer((function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false); self.buyTable.OnTimer[pName] = false; end), 10)
 	for rName, rToBuy in pairs(self.buyTable.ConfirmationPopup) do
-		if rName then
-		
+		if rName then	
 			-- Add reagents to OnQueue
 			if Hemlock.buyTable.OnQueue[rName] then
 				Hemlock.buyTable.OnQueue[rName] = Hemlock.buyTable.OnQueue[rName] + rToBuy
 			else
 				self.buyTable.OnQueue[rName] = rToBuy
-			end
-			
+			end		
 			local buyResult = self:BuyVendorItem(rName, rToBuy)
 			if not buyResult then
 				Hemlock:PrintMessage(self:L("unableToBuy", rToBuy, pName))
@@ -751,17 +731,15 @@ end
 
 function Hemlock:MERCHANT_SHOW()
 	local localclass, trueclass = UnitClass("player")
-		-- We clean the previous buy queue to be safe...
-	for k, v in pairs(self.buyTable.OnQueue) do self.buyTable.OnQueue[k] = nil end 
-	
+	-- We clean the previous buy queue to be safe...
+	for k, v in pairs(self.buyTable.OnQueue) do self.buyTable.OnQueue[k] = nil end
 	if trueclass ~= "ROGUE" or not self.poisonSpellName or not IsUsableSpell(self.poisonSpellName) or not self.enabled then return end
-
 	if not self.inited then
 		self:InitFrames()
 		self.inited = true
 	end
 	HemlockFrame:Hide()
-
+	-- Autobuy part
 	for itemName, v in pairs(self.db.profile.autoBuy) do
 		if v then
 			local toBuy = self.db.profile.reagentRequirements[itemName] - GetItemCount(itemName)
@@ -770,7 +748,7 @@ function Hemlock:MERCHANT_SHOW()
 			end
 		end
 	end
-
+	-- Check marchand items
 	local haveNils = false
 	self.claimedReagents = {}
 	for i = 1, GetMerchantNumItems() do
@@ -781,7 +759,7 @@ function Hemlock:MERCHANT_SHOW()
 			-- If this is a deathweed vendor, we'll assume he's selling poison.
 			if link and strfind(link, "Hitem:5173:") then
 				HemlockFrame:Show()
-				Hemlock:BAG_UPDATE_DELAYED()
+				Hemlock:BAG_UPDATE()
 				-- Update initial inventory
 				for reagent = 1, GetMerchantNumItems() do
 					local id = GetMerchantItemID(reagent)
@@ -811,11 +789,11 @@ function Hemlock:MERCHANT_CLOSED()
 	end
 end
 
-function Hemlock:BAG_UPDATE_DELAYED(bag_id)
+function Hemlock:BAG_UPDATE(bag_id)
 	if HemlockFrame:IsVisible() then
 		local CurrentInventoryReagents = 0
 		local OnQueueReagents = 0
-		
+		-- Update button text
 		for k, f in pairs(self.frames) do
 			if f then
 				local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(f.item_id)
@@ -826,7 +804,6 @@ function Hemlock:BAG_UPDATE_DELAYED(bag_id)
 				end
 			end
 		end
-		
 		-- Update CurrentInventory
 		for reagent = 1, GetMerchantNumItems() do
 			local id = GetMerchantItemID(reagent)
@@ -837,7 +814,6 @@ function Hemlock:BAG_UPDATE_DELAYED(bag_id)
 				CurrentInventoryReagents = CurrentInventoryReagents + 1
 			end)
 		end
-		
 		-- Enable frame based on inventory status
 		for reagentNameOnQueue, reagentValueOnQueue in pairs(self.buyTable.OnQueue) do 
 			for reagentNameCurrentInventory, reagentValueCurrentInventory in pairs(self.buyTable.CurrentInventory) do
@@ -855,13 +831,11 @@ function Hemlock:BAG_UPDATE_DELAYED(bag_id)
 					-- Hemlock:Print("------------------")
 				end
 			end
-		end
-		
+		end	
 		-- Count how many reagents we have in our buy queue
 		for k, v in pairs(Hemlock.buyTable.OnQueue) do
 			OnQueueReagents = OnQueueReagents + 1
-		end
-		
+		end	
 		-- Enable Hemlock frames if the queue is empty
 		if OnQueueReagents < 1 then
 			-- Hemlock:Print("|cff77ff77Enable frames|r")
@@ -883,8 +857,9 @@ function Hemlock:BAG_UPDATE_DELAYED(bag_id)
 end
 
 function Hemlock:GetPoisonsInInventory(name)
-	ignoreLowerRanks = Hemlock.db.profile.options.ignoreLowerRankPoisons
-	if not ignoreLowerRanks then
+	-- Ignore poisons in inventory that are not the highest rank, this doesn't work well... (yet)
+	self.ignoreLowerRanks = Hemlock.db.profile.options.ignoreLowerRankPoisons
+	if not self.ignoreLowerRanks then
 		local totalCount = 0
 		local rankStrings = {" X", " IX", " VIII", " VII", " VI", " V", " IV", " III", " II", "I", ""}
 		for idx, str in ipairs(rankStrings) do
@@ -923,7 +898,6 @@ function Hemlock:GetMaxPoisonRank(poisonName)
 			end
 		end
 	end
-
 	-- 20 is way more than we need, but eh.
 	local rankStrings = {"XX", "XIX", "XVIII", "XVII", "XVI", "XV", "XIV", "XIII", "XII", "XI", "X", "IX", "VIII", "VII", "VI", "V", "IV", "III", "II", "I"}
 	for idx, str in ipairs(rankStrings) do
@@ -980,7 +954,6 @@ function Hemlock:GetNeededPoisons(name, frame)
 	for k,v in pairs(self.buyTable.ConfirmationPopup) do self.buyTable.ConfirmationPopup[k] = nil end
 	self.noMessage = false
 	if not self.claimedReagents[skillIndex] then self.claimedReagents[skillIndex] = {} end
-
 	if poison then
 		-- local count = GetItemCount(GetTradeSkillItemLink(skillIndex))
 		local count = Hemlock:GetPoisonsInInventory(name)
@@ -1003,7 +976,6 @@ function Hemlock:GetNeededPoisons(name, frame)
 					self.claimedReagents[skillIndex][reagentName] = need
 				end
 			end
-			
 			if not self.noMessage then
 				for i = 1, GetTradeSkillNumReagents(skillIndex) do
 					local reagentName, reagentTexture, reagentCount, playerReagentCount = GetTradeSkillReagentInfo(skillIndex, i)
@@ -1012,12 +984,10 @@ function Hemlock:GetNeededPoisons(name, frame)
 				self.claimedReagents[skillIndex] = nil
 				return
 			end
-
 		else
 			Hemlock:PrintMessage(self:L("skipping", name, amt, count))
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 		end
-
 	end
 	for rName, rToBuy in pairs(self.buyTable.ConfirmationPopup) do
 		if rName and type(rToBuy) ~= "table" then
@@ -1061,7 +1031,6 @@ function Hemlock:ScanPoisons(step)
 		self:Print(self:L("scan_step_1", "[1/3]"))
 		self:ScheduleTimer(function() self:ScanPoisons(2) end, 2)	 
 	end
-
 	-- TradeSkillFilterDropDown:SetChecked(false)
 	if step == 2 or step == 3 then
 		GameTooltip:SetOwner(UIParent, "ANCHOR_LEFT")
@@ -1079,7 +1048,6 @@ function Hemlock:ScanPoisons(step)
 		-- self:ScheduleEvent(function() self:ScanPoisons(step + 1) end, 2)
 		self:ScheduleTimer(function() self:ScanPoisons(step + 1) end, 2)
 	end
-
 	if step == 4 then
 		GameTooltip:SetOwner(UIParent, "ANCHOR_LEFT")
 		for i = 1, GetNumTradeSkills() do
@@ -1090,9 +1058,9 @@ function Hemlock:ScanPoisons(step)
 				if link then
 					for n = 1,2 do
 						for j = 1, GetTradeSkillNumReagents(i) do
-								GameTooltip:SetTradeSkillItem(i, j)
-								link = GetTradeSkillReagentItemLink(i, j)
-								GameTooltip:Hide()
+							GameTooltip:SetTradeSkillItem(i, j)
+							link = GetTradeSkillReagentItemLink(i, j)
+							GameTooltip:Hide()
 						end
 					end
 				end
