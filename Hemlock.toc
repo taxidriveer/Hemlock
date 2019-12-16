@@ -1,5 +1,5 @@
 ## Interface: 11303
-## Version: 1.1
+## Version: 1.1.1
 ## Title: Hemlock
 ## Notes: Minimalistic addon to automate poison buying and creation
 ## Author: Antiarc, Grome
