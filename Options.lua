@@ -1,4 +1,5 @@
-﻿local addOnName = ...
+﻿if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
+local addOnName = ...
 
 -- main frame
 frame = CreateFrame("Frame","HemlockOptions")
