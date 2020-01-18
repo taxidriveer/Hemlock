@@ -35,6 +35,7 @@ local poisonIDs = {6947, 2892, 3775, 10918, 5237}
 
 --[[ These are all the Wound Poison item IDs, used for alternative icon ]]--
 local woundPoisonIDs = {10918,10920,10921,10922}
+local cripplingPoisonIDs = {3775,3776}
 
 --[[ Flash powder. Don't need anything else right now. ]]--
 local reagentIDs = {5140}
@@ -75,7 +76,7 @@ function Hemlock:Register()
 				name = self:L("cmd_options"),
 				desc = self:L("cmd_options_desc"),
 			},
-			icon = {
+			woundicon = {
 				type = "execute",
 				func = function() 
 					if Hemlock.db.profile.options.alternativeWoundPoisonIcon == true then 
@@ -95,6 +96,27 @@ function Hemlock:Register()
 				end,
 				name = self:L("option_alternativeWoundPoisonIcon"),
 				desc = self:L("option_alternativeWoundPoisonIcon_desc"),
+			},
+			cripplingicon = {
+				type = "execute",
+				func = function() 
+					if Hemlock.db.profile.options.alternativeCripplingPoisonIcon == true then 
+						local optionName = self:L("option_alternativeCripplingPoisonIcon")
+						local optionState = self:L("option_StateOff")
+						Hemlock.db.profile.options.alternativeCripplingPoisonIcon = false
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					else
+						local optionName = self:L("option_alternativeWoundPoisonIcon")
+						local optionState = self:L("option_StateOn")
+						Hemlock.db.profile.options.alternativeCripplingPoisonIcon = true
+						Hemlock:Print(optionName,"-|cffffd200",optionState.."|r")
+						self:InitFrames()
+					end
+					Hemlock:RefreshOptions()
+				end,
+				name = self:L("option_alternativeCripplingPoisonIcon"),
+				desc = self:L("option_alternativeCripplingPoisonIcon_desc"),
 			},
 			messages = {
 				type = "execute",
@@ -284,6 +306,7 @@ function Hemlock:InitializeDB()
 	defaults.profile.options.chatMessages = true
 	self.db.defaults.profile.options.buyConfirmation = true
 	self.db.defaults.profile.options.alternativeWoundPoisonIcon = false
+	self.db.defaults.profile.options.alternativeCripplingPoisonIcon = false
 	self.db.defaults.profile.options.ignoreLowerRankPoisons = false
 end
 
@@ -345,7 +368,10 @@ end
 
 function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	local woundPoison = false
+	local cripplingPoison = false
+	local alternativeIconApplied = false
 	local alternativeWoundPoisonIcon = Hemlock.db.profile.options.alternativeWoundPoisonIcon
+	local alternativeCripplingPoisonIcon = Hemlock.db.profile.options.alternativeCripplingPoisonIcon
 	local itemName, _, _, _, _, _, _, _, _, invTexture = GetItemInfo(itemID)
 	-- Get wound poison ID based on the rank
 	for k,v in ipairs(woundPoisonIDs) do
@@ -353,7 +379,14 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 			woundPoison = true
 		end
 	end
-	-- Configure requirements to 0 if no entry in the db, used for the  first load
+	-- Get crippling poison ID based on the rank
+	for k,v in ipairs(cripplingPoisonIDs) do
+		-- print("itemID",itemID, "v",v)
+		if itemID == v then
+			cripplingPoison = true
+		end
+	end
+	-- Configure requirements to 0 if no entry in the db, used for the first load
 	if not itemName then return nil end
 	if not self.db.profile.poisonRequirements[itemName] then
 		self.db.profile.poisonRequirements[itemName] = 0
@@ -369,11 +402,24 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 	else
 		f:SetPoint("TOP", lastFrame, "BOTTOM", 0, space)
 	end
-	-- Apply alternative poison icon
+	-- Apply alternative poisons icon
+	-- WoundPoison
 	if (alternativeWoundPoisonIcon and woundPoison) then
 		f:SetNormalTexture(134197)
+		alternativeIconApplied = true
 	else
-		f:SetNormalTexture(invTexture)
+		if not alternativeIconApplied then
+			f:SetNormalTexture(invTexture)
+		end
+	end
+	-- CripplingPoison
+	if (alternativeCripplingPoisonIcon and cripplingPoison) then
+		f:SetNormalTexture(134799)
+		alternativeIconApplied = true
+	else
+		if not alternativeIconApplied then
+			f:SetNormalTexture(invTexture)
+		end
 	end
 	f:Show()
 	f.tooltipText = itemName
@@ -724,6 +770,7 @@ function Hemlock:RefreshOptions()
 		HemlockCheckBoxSmartPoisonCount:SetChecked(Hemlock.db.profile.options.smartPoisonCount)
 		HemlockCheckBoxChatMessages:SetChecked(Hemlock.db.profile.options.chatMessages)
 		HemlockCheckBoxAlternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
+		HemlockCheckBoxAlternativeCripplingPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeCripplingPoisonIcon)
 		HemlockCheckBoxBuyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
 		HemlockCheckBoxIgnoreLowerRankPoisons:SetChecked(Hemlock.db.profile.options.ignoreLowerRankPoisons)
 	end

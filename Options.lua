@@ -59,13 +59,21 @@ frame:SetScript("OnShow", function(frame)
 	alternativeWoundPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeWoundPoisonIcon)
 	alternativeWoundPoisonIcon:SetPoint("TOPLEFT", chatMessages, "BOTTOMLEFT", 0, -8)
 	
+	alternativeCripplingPoisonIcon = newCheckbox(
+		"AlternativeCripplingPoisonIcon",
+		Hemlock:L("option_alternativeCripplingPoisonIcon"),
+		Hemlock:L("option_alternativeCripplingPoisonIcon_desc"),
+		function(self, value) Hemlock.db.profile.options.alternativeCripplingPoisonIcon = value; Hemlock:InitFrames() end)
+	alternativeCripplingPoisonIcon:SetChecked(Hemlock.db.profile.options.alternativeCripplingPoisonIcon)
+	alternativeCripplingPoisonIcon:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 0, -8)
+	
 	buyConfirmation = newCheckbox(
 		"BuyConfirmation",
 		Hemlock:L("option_buyConfirmation"),
 		Hemlock:L("option_buyConfirmation_desc"),
 		function(self, value) Hemlock.db.profile.options.buyConfirmation = value; Hemlock:InitFrames() end)
 	buyConfirmation:SetChecked(Hemlock.db.profile.options.buyConfirmation)
-	buyConfirmation:SetPoint("TOPLEFT", alternativeWoundPoisonIcon, "BOTTOMLEFT", 0, -8)
+	buyConfirmation:SetPoint("TOPLEFT", alternativeCripplingPoisonIcon, "BOTTOMLEFT", 0, -8)
 	
 	ignoreLowerRankPoisons = newCheckbox(
 		"IgnoreLowerRankPoisons",
