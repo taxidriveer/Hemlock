@@ -2,7 +2,7 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1.1.1 $
+Revision: $Rev: 1.1.2 $
 Developed by: Antiarc
 Currently maintained by: Grome
 Documentation:
@@ -676,7 +676,7 @@ function Hemlock:ConfirmationPopupAccepted(frame,pName)
 	frame:Disable()
 	frame:GetNormalTexture():SetDesaturated(true)
 	-- failsafe if something goes wrong with the reagents detection, hopefully we never going to need this!
-	-- self:ScheduleTimer((function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false); self.buyTable.OnTimer[pName] = false; end), 10)
+	self:ScheduleTimer((function() frame:Enable(); frame:GetNormalTexture():SetDesaturated(false); end), 10)
 	for rName, rToBuy in pairs(self.buyTable.ConfirmationPopup) do
 		if rName then	
 			-- Add reagents to OnQueue
