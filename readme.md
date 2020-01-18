@@ -1,10 +1,9 @@
-Fan Update
+Classic Update
 ---------------------------------------
-
 * Migrated to Ace3 / LibDropDown
 * Support for Classic
-* Temporaly disabled the UI (use /hemlock)
-
+* Added confirmation dialog
+* Alternative icons support
 
 Hemlock - Minimalistic addon to automate poison buying and creation
 ---------------------------------------
