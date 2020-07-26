@@ -2,13 +2,13 @@ if (select(2, UnitClass("player"))) ~= "ROGUE" then return end
 
 --[[
 Name: Hemlock
-Revision: $Rev: 1.1.2 $
+Revision: $Rev: 1.1.3 $
 Developed by: Antiarc
 Currently maintained by: Grome
 Documentation:
 Github: https://github.com/taxidriveer/Hemlock
 Description: Minimalistic addon to automate poison buying and creation
-Dependencies: AceLibrary, Dewdrop-2.0 (modified)
+Dependencies: Ace-3.0, LibDropdown-1.0
 ]]--
 
 --[[*** Configuration ***]]--
