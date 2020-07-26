@@ -482,6 +482,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				else
 					GameTooltip:AddLine (self:L("clicktoset",itemName));
 				end
+				GameTooltip:Show()
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then
@@ -563,6 +564,7 @@ function Hemlock:MakeFrame(itemID, space, lastFrame, frameType)
 				else
 					GameTooltip:AddLine (self:L("clicktoset",itemName));
 				end
+				GameTooltip:Show()
 		end)
 		f:SetScript("OnClick", function(self, button)
 			if (button == "LeftButton") then
